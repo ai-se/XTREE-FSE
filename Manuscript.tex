@@ -100,44 +100,43 @@ Lucas Layman \\
        \affaddr{Fraunhofer CESE  } \\ 
        \affaddr{College Park, USA}\\ 
        {llayman@fc-md.umd.edu}
-\setlength{\columnsep}{7mm}
-}
+\setlength{\columnsep}{7mm}}
 \maketitle
 \begin{abstract}
 
-Business users now demand more insightful analytics; specifically, tools that generate ``plans''-- specific suggestions on  what to change  in order to improve  the predicted values.
- 
-This paper proposes XTREE, a planner for software projects. XTREE receives tables of data with independent features and a corresponding weighted class which indicates the quality (``bad'' or ``better'') of each row in the table. Plans are edits to  the rows which ensures the changed row is more likely to be of a ``better'' quality.  XTREE learns those plans by building a decision tree across the data, then reporting the differences in the branches from some current branch to another desired branch.
-Using data from 11 software projects,  XTREE can find better plans compared to three
-alternate methods. Those plans have lead to improvements with a median size of (56\%, 28\%) and   largest size of (60\%, 77\%) in (defect counts, runtimes), respectively.
+
 \end{abstract}
 
 \keywords{Defect prediction; Configuration; Planning; Decision trees.}
 \section{Introduction}
 
-Due to the continuous change undergone by modern software systems, developers tend to ignore the quality of source code, thereby introducing \textit{code smells} (or \textit{anti-pattern}). These anti-patterns are generally viewed as poor solutions to recurring design problems. In addition to there being anecdotal evidence of the impact of anti-patterns, there now is also some empirical evidence to suggest that code containing anti-patterns are more fault prone than the rest of the code~\cite{}\cite{}. Studies show that the number of code smells increase over time and in only a very few cases are these smells addressed by refactoring \cite{}\cite{}. This makes early detection of these code smells a necessity to maintain sufficient quality in software systems. This being said, detection only addresses a part of the problem, what we need are recommendation systems that can assist a software developed by (i) identifying potential anti-patterns; (ii) generating reliable refactoring options, and (iii) critiquing bad refactoring options. 
+When modern software systems are developed, their design changes continuously. Due to market constraints, the developers tend to ignore the quality of source code, thereby introducing \textit{code smells} (or \textit{anti-pattern}). These anti-patterns are generally viewed as poor solutions to recurring design problems, possibly deterring the maintainability of the system. In the past decade there has been growing evidence of the impact of anti-patterns, there now is also some empirical evidence to suggest that code containing anti-patterns are more fault prone than the rest of the code~\cite{}\cite{}\cite{}. Studies show that the number of code smells increase over time and in only a very few cases are these smells addressed by refactoring \cite{}\cite{}. This makes early detection of these code smells a necessity to maintain sufficient quality in software systems. This being said, detection only addresses a part of the problem, what we need are recommendation systems that can assist a software developed by (i) identifying potential anti-patterns; (ii) generating reliable refactoring options, and (iii) critiquing bad refactoring options. 
 
-This is quite similar to the concerns voiced by several business users, who are demanding tools that support business-level interpretations of their data. At a panel on software analytics at ICSE`12, industrial practitioners lamented the state of the art in software analytics~\cite{menzies12a}. Panelists commented  ``prediction is all well and good, but what about decision making?''. Note that these panelists were more interested in the interpretations and follow-up that occurs after the mining, rather than just the mining itself. So:
+Tools for detecting code smells have been the focus of several researchers lately, \cite{}. One popular analysis technique is the use of static code analysis and code quality metrics\cite{}. While these tools are capable of detecting these smells with a reasonable accuracy, they fail to provide developers in planning actions to improve the quality of source code.  Similar to the concerns were voiced by several business users, who are demanding tools that support business-level interpretations of their data. 
+
+At a panel on software analytics at ICSE`12, industrial practitioners lamented the state of the art in software analytics~\cite{menzies12a}. Panelists commented  ``prediction is all well and good, but what about decision making?''. The panelists were more interested in the interpretations and follow-up that occurs after the mining, rather than just the mining itself. We call such tools \textit{planners}. In the context of detecting code smells, the planners are designed to address the following issues.
 
 \bi
 \item
-Instead of just \textit{detecting} anti-patterns and code smells, it may be beneficial to generate \textit{plans} to remove the bad smells
+Instead of just \textit{detecting} anti-patterns and code smells, it may be beneficial to develop tools that can be used to reason about the code smells. 
+\item
+In addition to detecting anti-patterns and code smells, tools must be capable of having a contextual understanding of the data to trigger only the most useful refactoring options.
+\item Tools must provide a visual medium for developer to gauge the nature of refactoring options, thereby discarding bad solutions.
 \ei
-In response to this , we propose a novel {\em planning} method called XTREE for learning changes to a software system such that its performance ``improves'', according to some quantitative measure. This paper uses XTREE to reduce  the expected value of the defects in Jureczko et al.'s JAVA systems~\cite{jureczko10}; 
 
-The contributions of this paper are (1)  the new XTREE algorithm and (2) an evaluation strategy that shows the algorithm performing significantly ``better'' than  the  planner  proposed in our prior   work~\cite{me12c}. In this paper, we focus on three research questions:
+In response to this, we propose a novel {\em planning} method called XTREE which reflects on static code quality metrics to learn refactoring options to a software system such that its performance ``improves'' quantitatively. As a measure of source code quality we take into account the number of classes with defects in them. To this end, we use defect count data set by Jureczko et al. for JAVA systems~\cite{jureczko10}. 
+
+The contributions of this paper are (1) the new XTREE planning algorithm and (2) an evaluation strategy that shows the tool performing significantly ``better'' than  the  planner  proposed in our prior work~\cite{me12c}. 
+
+The work on XTREE is motivated by the following three research questions:
 
 \bi
-\item \textbf{RQ1: Effective: Can a planner suggest plans to improve the quality of a defective class?}
-\item \textbf{RQ2: Succinct: Are the plans suggested by a planner succinct?}
-\item \textbf{RQ3: Insightful: Do the plans tell us thing we do not expect?}
+\item \textbf{RQ1:} \textit{Can a planner suggest plans to improve the quality of a defective class?} This research question investigates the effectiveness of a planner in suggesting useful refactoring options to improve the quality of class by reduce the number of defects. Specifically, we use XTREE to suggest valid changes to source code and we use an oracle to measure the effectiveness of the changes, see \tion{eval}.
+\item \textbf{RQ2:} \textit{Are the plans suggested by a planner succinct?} The second question aims to measure the number of refactorings required 
+\item \textbf{RQ3:} \textit{Insightful: Do the plans tell us thing we do not expect?}
 \ei
 
-The rest of this paper  describes our data, our planners, and the experiment that
-ranks XTREE against alternate approaches.  This is followed by notes on related work
-and validity.
-To enable reproducibility, all scripts and data used in this 
-study are available online at \url{http://git.io/vG3DG}.
+The rest of this paper  describes our data, our planners, and the experiment that ranks XTREE against alternate approaches.  This is followed by notes on related work and validity. To enable reproducibility, all scripts and data used in this study are available online at \url{http://git.io/vG3DG}.
 
 \section{Preliminaries}\label{sect:prelim}
 
@@ -154,7 +153,7 @@ To illustrate this, consider for example developers adding several responsibilit
 
 For a while now, there have been anecdotal evidence that design problems (such as anti-patterns) negatively impacts software comprehension and maintenance. However, in the past few years, anti-patterns have been the subject of several empirical studies aiming at empirically analyzing their impact on software maintainability. From these studies, we now have empirical evidence that code containing code smells or participating in anti-patterns is significantly more change-prone than ``clean'' code \cite{31}. Also, code participating in anti-patterns has a higher fault-proneness than the rest of the system code \cite{31}\cite{37}. 
 
-Other studies aimed at understanding the impact of anti-patterns on program comprehension \cite{1} showed that the presence of an anti-pattern in the source code does not decrease the developers’ performance, while a combination of anti-patterns results in a significant decrease of their performance \cite{1}\cite{61}. While the results of this study indicates that single anti-patterns are not harmful, they also reveals that anti-patterns are quite diffuse in software systems and very often code components are affected by more than one anti-pattern. In addition, we have empirical evidence that the number of anti-patterns in software systems increases over time and only in few cases they are removed through refactoring operations \cite{3}\cite{17}. 
+Other studies aimed at understanding the impact of anti-patterns on program comprehension \cite{1} showed that the presence of an anti-pattern in the source code does not decrease the developers' performance, while a combination of anti-patterns results in a significant decrease of their performance \cite{1}\cite{61}. While the results of this study indicates that single anti-patterns are not harmful, they also reveals that anti-patterns are quite diffuse in software systems and very often code components are affected by more than one anti-pattern. In addition, we have empirical evidence that the number of anti-patterns in software systems increases over time and only in few cases they are removed through refactoring operations \cite{3}\cite{17}. 
 
 All these findings suggest that code smells and anti-pattern need to be carefully detected and
 monitored and, whenever necessary, refactoring operations should be planned and performed to deal with them. Unfortunately, the identification and the correction of design flaws in large and non-trivial software systems can be very challenging. These observations call for \textit{planners} capable of supporting the software engineer by (i) identifying anti-patterns, and (ii) designing and applying a refactoring solution to remove them. Such planners, are the focus of the current paper.
@@ -421,6 +420,7 @@ What {\em current} branch does a test case fall in?
 \ee
 
 \section{Evaluation Strategy}
+\label{sect:eval}
 \input{tex/prediction_stats.tex}
 
 Our evaluation strategy (discussed below) divides this data into a training and a testing set.
@@ -589,9 +589,20 @@ and {\em insightfulness}, which is how different are the plans from standard tru
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=\linewidth]{figs/Deltas-both.eps}
+\includegraphics[width=\linewidth]{figs/PercentChanges.png}
 \caption{Percent frequency for how often certain feature was changed by a plan.}\label{fig:changed}
 \end{figure*}
+
+% \begin{figure*}
+% \centering
+% \caption{My caption}
+% \label{my-label}
+% \begin{tabular}{lllllllllll}
+%  & CBO             & LCOM           & LOC & AMC & WMC & NPM    & CAM & RFC         & CA & AVG\_CC \\
+%  & 4               & 3              & 3   & 3   & 2   & 2      & 2   & 2           & 1  & 1       \\
+%  & Max: 9 \cite\{} & Min: 0, Max: 2 & *   & *   & 20  & Min: 1 & *   & 40 \cite\{} & *  & *      
+% \end{tabular}
+% \end{figure*}
 
 % \includegraphics[width=\linewidth]{figs/ant.png}
 
