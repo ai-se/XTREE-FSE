@@ -1,9 +1,9 @@
 
-	\begin{figure} 
+	\begin{figure}[tbp!]
 	\begin{shaded}
   ~\hrule~
   
- {\bf Figure 7.A: Measuring Variability} 
+ {\bf Figure 3.A: Measuring Variability} 
 	
 	For  continuous and discrete values,
 the {\em variability} can be measured using standard deviation $\sigma$ or entropy $e$.
@@ -15,7 +15,7 @@ $f_1,f_2,.. f_n$ for \mbox{$N = \sum^n_{i=1} f_i$} and $p_i = f_i/N$.
 
   ~\hrule~
 	
-	{\bf Figure 7.B: Measuring distance}
+	{\bf Figure 3.B: Measuring distance}
 	
 	We use
 		 Aha et al.'s standard Euclidean distance measure~\cite{aha91}.  For $F$ independent features, the measure returns   $d(X,Y)=\sqrt{\sum_i^F  w_i\Delta(X_i,Y_i)^2}$. Here, $w_i$ is a weight term for each feature
@@ -29,7 +29,7 @@ $f_1,f_2,.. f_n$ for \mbox{$N = \sum^n_{i=1} f_i$} and $p_i = f_i/N$.
 
  ~\hrule~
  
-	{\bf Figure 7.C: Top-down Clustering with WHERE}
+	{\bf Figure 3.C: Top-down Clustering with WHERE}
 	
 				WHERE  divides data into  groups of size $\alpha=\sqrt{N}$. 
 		Using this measure, WHERE runs as follows:
@@ -52,14 +52,14 @@ $f_1,f_2,.. f_n$ for \mbox{$N = \sum^n_{i=1} f_i$} and $p_i = f_i/N$.
 	  
 	   ~\hrule~
 	   
-	{\bf Figure 7.D: Top-down division with Decision Trees}
+	{\bf Figure 3.D: Top-down division with Decision Trees}
 	
 	Find a split in the values of  independent features that most reduces the variability
   of the dependent feature (measured using \fig{where}.A). Construct a standard decision tree using these splits.
 	
 	 ~\hrule~
 	 
-	 	{\bf Figure 7.E: Finding the most informative rows}
+	 	{\bf Figure 3.E: Finding the most informative rows}
 	
 
 Discretize all numeric features using the Fayyad-Iranni discretizer~\cite{FayIra93Multi}
