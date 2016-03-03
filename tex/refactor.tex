@@ -1,0 +1,48 @@
+\begin{figure*}[!t] 
+\scriptsize
+\centering
+\begin{tabular}{r|l|c|c|c|c}
+Mostly from Fowler'99& & & & & Developer\\
+ (with a few additions)~\cite{fowler99} & Lanza'06~\cite{Lanza2006} & SonarQube~\cite{sq15}  &  Yamashita'13\cite{Yamashita2013} & Atwood'06\cite{Atwood06}  & Survey\\\hline
+  Alt. Classes with Diff. Interfaces & & & & + & \\
+  Combinatorial Explosion~\cite{Kerievsky2004} & & & & + & \\
+  Comments & & & 11 & + & VL\\
+  Conditional Complexity~\cite{Kerievsky2004} & & & 14 & + & ?\\
+  Data Class & Data Class & & & + &\\
+  Data Clumps &  &  & & + &\\
+  Divergent Change & & & & + & \\
+  Duplicated Code & Significant Duplication\textsuperscript{*} & + & 1 & + & VH\\
+  Feature Envy & Feature Envy & & 8 & + &\\
+  
+  Inappropriate Intimacy & & - & & + & L\\
+  Indecent Exposure~\cite{Kerievsky2004} & & & & + & ?\\
+  Incomplete Library Class & & & & + &\\
+  Large Class & God Class/Brain Class & ++ & 4 & + & VH\\
+  Lazy Class/Freeloader & & - & 7 & + &\\
+  Long Method & Brain Method & ++ & 2 & + & VH\\
+  Long Parameter List &  & + & 9 & + & L \\
+  
+  Message Chains & & & & + & H\\
+  Middle Man & &  & & + &\\
+  Oddball Solution~\cite{Kerievsky2004} & & & & + & \\
+  Parallel Inheritance Hierarchies & & & & + &\\
+  Primitive Obsession &  & & & + &\\
+  
+  Refused Bequest & Refused Parent Bequest & - & & + & \\ 
+  Shotgun Surgery & Shotgun Surgery & & & + & \\
+  Solution Sprawl~\cite{Kerievsky2004} & & & & + &\\
+  Speculative Generality & & & & + & L\\
+  Switch Statements &  & - & & & L\\
+  Temporary Field & & - & & + & ?\\
+  \end{tabular}
+%   \multicolumn{5}{l}{} \\
+%   \multicolumn{5}{l}{\textsuperscript{\textdagger} + Exact rule, - Possibly related rule} \\
+%     \multicolumn{5}{l}{\textsuperscript{\textdaggerdbl} + is included in list} \\
+%     \multicolumn{5}{l}{\textsuperscript{\textexclamdown} VH: Very High, H: High, L: Low, VL: Very Low, ?: Still investigating} \\
+%   \multicolumn{5}{l}{\textsuperscript{*} Computation is based on more than simple metrics.} \\
+
+\caption{List of bad code smells from different sources. Empty cells
+denote some bad smell proposed by Fowler'99 that was not found relevant
+in subsequent studies. Note that there are many blank cells.}
+\label{fig:smells}
+\end{figure*}

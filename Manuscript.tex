@@ -78,24 +78,13 @@
 \definecolor{shadecolor}{gray}{0.9}
 \conferenceinfo{ISCE}{'16 Austin, Texas}
 
-\title{Learning Which Bad Smells are 
-Real Stinkers?}
-\numberofauthors{4} 
+\title{ How to Recognize Useless ``Bad Smells''}
+\numberofauthors{2} 
 \author{  
 \alignauthor
-Rahul~Krishna\\Tim Menzies, Xipeng~Shen \\
+Rahul~Krishna, Tim Menzies, Xipeng~Shen \\
        \affaddr{CS, NC State, USA}\\
-       {\{i.m.ralk,~tim.menzies,\\xipengshen\}@gmail.com}
-\alignauthor
-Andrian Marcus \\
-       \affaddr{CS, UT Dallas  } \\ 
-       \affaddr{Texas, USA}\\ 
-       {amarcus@utdallas.edu}
-       \alignauthor
-Naveen  \\ Lekkalapudi\\
- \affaddr{Bellhops } \\ 
-       \affaddr{Tennessee, USA}\\ 
-       {navek91@gmail.com}
+       {\{i.m.ralk,~tim.menzies,~xipengshen\}@gmail.com}
 \alignauthor
 Lucas Layman \\
        \affaddr{Fraunhofer CESE  } \\ 
@@ -104,105 +93,315 @@ Lucas Layman \\
 \setlength{\columnsep}{7mm}}
 \maketitle
 \begin{abstract}
+Developers, text books, and tools
+disagree on what bad smells should be refactored.
+While it useful to fix  some bad smells, others are
+ can be ignored.
+How to distinguish useful from useless bad smells?
 
+We propose RANK, a tool that judges how badly
+a project needs a particular   refactoring.
+RANK is tuned using the historical data of the current project.
+Using RANK, we   show that the range of truly bad
+``bad smells'' changes from project to project. Hence,
+before refactoring, it is important to run a critique tool
+like RANK to stop work on useless refactorings.
+Further, using RANK, it is possible to show that many
+of the bad smells endorsed by standard texts or tools
+are not useful for particular projects. 
+Based on these results, we endorse  
+guiding refactoring via bad smells. However,  
+it is vital to RANK the bad smells defined for a 
+particular project.
 
+\vspace{3mm}
+\noindent
+{\bf Categories/Subject Descriptors:} D.2 [Software Engineering]; I.2 [Artificial Intelligence];
+
+\noindent
+{\bf Keywords:} Bad smells, refactoring,
+performance prediction,  decision trees 
 \end{abstract}
 
-\keywords{Defect prediction; Configuration; Planning; Decision trees.}
 \section{Introduction}
+\begin{raggedleft}
+{\em My offense is rank, it smells to heaven.}\\
+-- Hamlet, Act 3, Scene 3
 
-When modern software systems are developed, their design 
-changes continuously. Due to market constraints, the developers tend to ignore the quality of source code, thereby introducing \textit{code smells} (or \textit{anti-pattern}). These anti-patterns are generally viewed as poor solutions to recurring design problems, possibly deterring the maintainability of the system. In the past decade there has been growing evidence of the impact of anti-patterns, there now is also some empirical evidence to suggest that code containing anti-patterns are more fault prone than the rest of the code~\cite{khomh12}\cite{li07}\cite{fab15_1}. Studies show that the number of code smells increase over time and in only a very few cases are these smells addressed by refactoring \cite{fab15_1}\cite{chatzigeorgiou10}\cite{arcoverde11}. This makes early detection of these code smells a necessity to maintain sufficient quality in software systems. This being said, detection only addresses a part of the problem, what we need are recommendation systems that can assist a software developed not only by identifying potential anti-patterns, but also by (i) generating reliable refactoring options, and (ii) critiquing bad refactoring options. 
+\end{raggedleft}
 
-Tools for detecting code smells have been the focus of several researchers lately, \cite{Tufano2015}\cite{boussaa13}. There are two  popular techniques for detecting smells: (1) by the making use of static code analysis and code quality metrics\cite{tsantalis09}; (2) Analysing software change history\cite{moha2010}. While these tools are capable of detecting these smells with a reasonable accuracy, they fail to provide developers with planning actions to improve the quality of source code.  Similar concerns were voiced by several business users, who are demanding tools that support business-level interpretations of their data. 
+~
 
-At a panel on software analytics at ICSE`12, industrial practitioners lamented the state of the art in software analytics~\cite{menzies12a}. Panelists commented  ``prediction is all well and good, but what about decision making?''. The panelists were more interested in the interpretations and follow-up that occurs after the mining, rather than just the mining itself. We call such tools \textit{planners}. In the context of detecting code smells, the planners are required to address the following issues.
 
-\bi
-\item
-Instead of just \textit{detecting} anti-patterns and code smells, it may be beneficial to develop tools that can be used to reason about the code smells. 
-\item
-In addition to detecting anti-patterns and code smells, tools must be capable of having a contextual understanding of the data to trigger only the most useful refactoring options.
-\item Tools must provide a visual medium for developer to gauge the nature of refactoring options, thereby discarding bad solutions.
-\ei
+% Developers, tools, and research papers are either vague or disagree
+% about what code refactorings are most important to perform, or ignore.
+% As noted by Shantnawi~\cite{Shatnawi10} there is a dearth of
+% studies that formulate 
+% precise guidelines,   represented as threshold values, to interpret the complexity of the software design using metrics. For example,  Darcy and Kemerer~\cite{darcy05}
+% claim that OO design metrics (e.g. depth of inheritance,
+% classes per method, etc) can be used to predict
+% code quality. Yet they their paper never comments at what point
+% a particular code measurement turns from ``ok'' to ``bad smell''.
+% Similary, code smell detection tools work for a certain
+% range of 
 
-In response to this, we propose a novel {\em planning} method called XTREE which reflects on static code quality metrics to learn refactoring options to a software system such that its performance ``improves'' quantitatively. As a measure of source code quality we take into account the number of classes with defects in them. To this end, we use defect count data set by Jureczko et al. for JAVA systems~\cite{jureczko10}. In addition to defects, the aforementioned data set measures a list of static code attributes associated with each class. These code attributes allow us to reason about the measurable properties of anti-patterns. 
+% When there are many possible code refactorings, it becomes difficult
+% to choose which ones to execute. 
+% Precious project resources can
+% be wasted if developers spend too much time on useless refactorings.
 
-The contributions of this paper are (1) the new XTREE planning algorithm and (2) an evaluation strategy that shows the tool performing significantly ``better'' than  the  planner  proposed in our prior work~\cite{me12c}. 
 
-The work on XTREE is motivated by the following three research questions:
+According to   Fowler~\cite{fowler99}, code smells (a.k.a. bad smells)
+are ``a surface indication that usually corresponds to a deeper problem''.
+Much research enthusiastically endorses ``bad smell''-based refactoring, as witnessed
+by the  
+recent literature of Tufano et al. at ASE'15~\cite{Tufano2015} which
+lists dozens of  
+papers proposing bad smell detection and repair tools.
 
-\bi
-\item \textbf{RQ1:} \textit{Can a planner suggest plans to improve the quality of a defective class?} This research question investigates the effectiveness of a planner in suggesting useful refactoring options to improve the quality of class by reducing the number of defects. Specifically, we use XTREE to suggest a number of valid changes to source code and we use an oracle to measure the effectiveness of the changes, see \tion{eval}. In order to ensure the changes are feasible, XTREE generate succinct plans.
+Should we remove bad smells whenever we find them? Perhaps not.
 
-\item \textbf{RQ2:} \textit{Can a planner be used to critique bad refactoring options?} In addition to being able to suggesting changes, it's beneficial for planners to be able to quantitatively comment on the quality of certain refactoring options, thereby preventing unnecessary refactoring.
 
-\ei
+Firstly, as noted by Shantnawi~\cite{Shatnawi10} there are  there are few studies that formulate 
+precise guidelines,   represented as threshold values, to interpret the complexity of the software design using metrics. For example,  Darcy and Kemerer~\cite{darcy05}
+discuss what OO design metrics might defect bad smells (e.g. a excessive
+depth of inheritance tree) but they never comment at what point
+a particular code measurement turns from ``ok'' to ``bad smell''.
 
-The rest of this paper  describes our data, our planners, and the experiment that ranks XTREE against alternate approaches.  This is followed by notes on related work and validity. To enable reproducibility, all scripts and data used in this study are available online at \url{http://git.io/vG3DG}.
+
+Secondly, it is not clear that all code smells are relevant to
+all projects.
+Developers often disagree on what bad smells, if any at all,
+should be refactored.
+For example, 
+Mantyla et al.~\cite{Mantyla2004} found that within an organization,
+ developers had different perceptions on the importance of different
+ bad smells.    Yamashita  and Moonen~\cite{Yamashita2013}
+ surveyed 85 professional developers to conclude that it remains
+ open to debate if code smells are a meaningful conceptualization  of code quality issues (from a developer's perspective). 
+ Sj\"oberg et al.~\cite{Sjoberg2013} studied six developers 
+ performing maintenance tasks that took three to four weeks to complete. 
+ After modifying nearly 300 Java files, it was observed
+ that none of the dozen investigated code smells explored in 
+ that study were mostly irrelevant to to that maintenance work.
+ 
+ How do we reconcile the enthusiasm of Fower,  Tufano, Darcy, Kemerer et al.
+ with the more pessimism of Mantyla, Yamashita, 
+ and Sj\"oberg et al.? The starting
+ point of this paper is a comment
+ from Mantyla et al.~\cite{Mantyla2004}. They say that
+ when making  refactoring decisions, it is not enough to
+ just apply some bad smell rule generated from another project.
+ Rather, they say, decisions about refactoring
+ should be based based on a combination of (1)~subjective evaluations and 
+ (2)~code metrics.  
+ 
+ Given the nature of human
+ expertise, developers will offer many  strong opinions about what requires changing.  That is, we   anticipate no shortage of (1)~subjective
+ evaluations from developers.
+ 
+ As to lessons learned from (2)~code metrics, this paper introduces RANK,
+ a tool for sorting proposed changes to static code measures. Unlike
+ normal classification algorithms, RANK is a {\em contrast set learner}.
+  Contrast set learners do not report {\em what is}. Rather
+     they recommend {\em what to change} in order to move from
+     one classification to another (e.g. from defective=yes to
+     defective=no).
+     When applied to defect predictors from static code measures,
+that delta is a change to static code measures;
+i.e. a code refactoring. 
+ 
+RANK's concept of operation is that developers {\em propose}
+numerous refactorings and RANK {\em disposes} of all those with
+no support in history data.
+Experiments with RANK explain the pessimism of Mantyla, Yamashita, 
+ and Sj\"oberg et al. As they noted, sometimes, pre-defined bad
+ smells are irrelevant to reducing the risk of defects in a project.
+ However, when bad smells are learned from the current project,
+ it is possible to recognize what are useful, and useless, local
+ changes (where ``useful'' is defined in terms of reducing the
+ predicted number of defects).
+  Hence,   we  can endorse
+ the use of bad smells to guide refactorings, but
+ only when tools like RANK can  tune the definitions of
+ ``good'' or ``bad'' refactorings using current project data.
+ 
+
+
+
+  
+  The contributions of this paper are:
+  \begin{itemize}
+      \item A
+  \end{itemize}
+  
+The rest of this paper is structured as follows. XXX
+ 
+
+Before beginning, we make the obvious aside
+that defect predictors are not the {\em only} way to assess
+bad smells. Some researchers report that code reviews and debating potential refactorings are useful for more just reducing defects. For example, Bosu and Carver~\cite{bosu13} report that
+debates about refactorings can   (a)~introducing new comers to the code base or (b)~share knowledge around a team
+about interactions within the code. In that view, 
+the concept of refactoring can be useful
+even if it does not address issues of defects. That said,
+reducing the risk of errors was
+Fowler's original motivation for introducing refactoring. Also, using
+defect predictors,
+it is possible to operationalize this test for $R_i \succ R_j$
+while it might be harder to otherwise assess refactorings.
+Hence, 
+this paper assumes that {\em better} refactorings and
+bettering at {\em reducing} the chances
+that code will contain defects. 
 
 \section{Motivation}\label{sect:prelim}
 
-\input{tex/jur_char.tex}
+A frequently asked question about this work is 
+why build tools like RANK to second-guess and critique developer intuitions?
+Our reply is that  recent studies point to a  widespread malaise in software engineering:
+beliefs about software are rarely revised and hence may be
+  inaccurate and 
+misleading~\cite{passos11,jorgensen09,mei15,me16phase,prem16}. Software developers may hence have very
+strong views on many issues, including bad smells, but those views may be wrong for the current
+project.
 
-The thesis of this paper is that the XTREE tool can stop developers
-wasting time on useless software refactorings. Before presenting experiments
-that supports that claim, this section motivates the need for 
-such tools.
 
-
-In many fields,  practitioners hang on to persistent beliefs, even
-if the evidence for those beliefs is not strong. For example, the medical profession applies many practices based on studies that have been disproved (a recent article in the Mayo Clinic Proceedings~\cite{prasad13} found 146 medical practices based on studies in year i, but which were reversed by subsequent trials within years i + 10). Even when the evidence for or against a treatment or intervention is clear, medical providers and patients may not accept it~\cite{aschwanden10}. Aschwanden warns that {\em cognitive biases} such as confirmation bias (the tendency to look for evidence that supports what you already know and to ignore the rest) influence how we process information~\cite{aschwanden15}.
+To be fair, software engineering is not the only field with this problem.
+  For example, the medical profession applies many practices based on studies that have been disproved (a recent article in the Mayo Clinic Proceedings~\cite{prasad13} found 146 medical practices based on studies in year i, but which were reversed by subsequent trials within years i + 10). Even when the evidence for or against a treatment or intervention is clear, medical providers and patients may not accept it~\cite{aschwanden10}. Aschwanden warns that {\em cognitive biases} such as confirmation bias (the tendency to look for evidence that supports what you already know and to ignore the rest) influence how we process information~\cite{aschwanden15}.
 
 As in medicine, so too in software engineering.
-There is growing evidence that amongst programmers,
-many of their  widely-held beliefs are inaccurate and misleading. 
 According to Passos et al.~\cite{passos11},  developers often  assume that the lessons they learn from a few past projects are general to all their future projects. They comment ``past experiences were taken into account without much consideration for their context''~\cite{passos11}.  J{\o}rgensen \& Gruschke~\cite{jorgensen09} offer a similar warning. They report that the supposed software engineering ``gurus'' rarely use lessons from past projects to improve their future reasoning and that such poor past advice can be detrimental to new projects.~\cite{jorgensen09}. 
 
-To support the last paragraph, we offer two
-specific examples
-were  widely-held views in SE that are   now questionable, given recent results. 
-Firstly, Nagappan et al. analyzed~\cite{mei15} 
-how the {\tt goto} statement was used  in 11,000 Github repositories, 
-they found that developers
+To support the last paragraph, we offer several
+specific studies
+showing that   widely-held views in SE that are   now questionable, given recent results. 
+The first three come from the general SE literature while the rest
+relate specifically to bad smells:
+\begin{enumerate} 
+\item
+Nagappan et al. analyzed~\cite{mei15} 
+how   {\tt goto}  was used  in 11,000 Github repositories. 
+They found that developers
 rarely used {\tt goto} in the unrestricted manner that alarmed Dijkstra in his famous 1968
 memo ``Go to statement considered harmful''~\cite{Dijkstra68}.
- 
-Secondly, in other work with the Software Engineering Institute (SEI), we have revisited
+\item
+In other work~\cite{me16phase} with the Software Engineering Institute (SEI), we have revisited
 the ``phase delay'' truism that {\em fixing a requirements error  during
 coding can be thousands of times more expensive than recognizing and fixing that error
-as soon as it arises}. Boehm and Basili comment that this phase delay effect
-``..has been a major driver in focusing industrial software practice on thorough requirements analysis and design, on early verification and validation, and on up-front prototyping and simulation to avoid costly downstream fixes''~\cite{boehm01}.
-After reading the literature, and surveying academics
-and practitioners, we can assert that this is a very widely-held belief. Nevertheless,
-this effect seems now heavily mitigated by $21^{st}$ software development languages,
-tools and development practices.  When we mined the 171 software projects shepherded
-by the SEI in the period 2006-2014, we found that phase delay results
-in only minor changes in the 
-time to resolve issues (usually less than a 30\% increase)~\cite{me16phase}.
-
-These two studies are symptomatic
-of a widespread malaise in software engineering.
+as soon as it arises}. 
+We found no evidence for such large   phase delay effect in modern
+software\footnote{171 software projects shepherded
+by the SEI, 2006-2014} possibly this has been  heavily mitigated by $21^{st}$ software development languages, tools and development practices). 
+Whatever the reason, the main point here is that phase delay remains a strongly
+held belief, despite little recent evidence to support it.
+\item
 Devanbu et al.  examined responses from 564 Microsoft software developers from around
-the world, They found that  `` (a)~programmers do indeed have very
+the world, They found that  ``(a)~programmers do indeed have very
 strong beliefs on certain topics; (b)~their beliefs are primarily formed
 based on personal experience, rather than on findings in empirical
 research; (c)~beliefs can vary with each project, but do not necessarily
 correspond with actual evidence in that project''~\cite{prem16}.
+\end{enumerate}
 Devanbu et al. further  comment that ``programmers give personal experience
 as the strongest influence in forming their opinions''. This is a troubling
 result, especially given the above comments from Passos,  J{\o}rgensen et al.~\cite{passos11,jorgensen09} about how quickly practitioners form, then freeze, those opinions for the rest of their
 careers.
 
-One area where poorly-justifed beliefs can waste valuable project resources is
-refactoring in order to remove code bad smells.
+
+\input{tex/refactor}
+
+ 
+ If widely-held beliefs in SE can be inaccurate and misleading,
+ it is timely to check the utility of bad smells.
+ This check is important since
+ the concept of bad smells is highly pervasive in the SE literature\footnote{.
+As of  Feburary 2016, ACM Digital Portal reports 
+that Fowler's 1999 text has 6434 references;
+while a search  on "bad smell"+refactoring yields 824 citations in
+the last decade at learning research
+venues (ICSE, FSE, etc).}. Accordingly,
+\fig{smells} 
+lists the commonly mentioned bad smells, in the first column.
+The other
+columns show other work that comments on which bad smells matter most.
+A  blank cell indicates where the other work has chosen to ignore
+of the Fowler bad smells as unimportant. 
+Note that most of the cells are blank.
+For example, the Atwood'06~\cite{Atwood06} study takes the time to comment on   
+all the Fowler bad smells.
+However, all the  other  studies ignore the majority of the Fowler bad smells.
+ 
+Two of the studies in \fig{smells} offers some comments on the relative importance
+of the different bad smells:
+\begin{itemize}
+\item The Yamashita’13~\cite{Yamashita2013} survey comments on the relative importance
+    of 14 code smells-- only eight of which are mentioned in
+    the left-hand-column.
+  \item  
+   The {\em developer survey}   (in the right-hand-side column}
+   shows the opinions we collected from a dozen developers from a Washington
+    D.C. web-tools development organization
+     Amongst those group, there was there was  some
+    consensus on  the priority of fixing which  bad smells   
+    (see the annotations VH=very high,
+    H=high, L=low, VL=very low, and ``?''= no consensus).  
+\end{itemize} 
+    One interesting point of agreement of the  Yamashita’13 study and the 
+    developer survey is the agreement on which  bad smells
+    were high priority:
+    \begin{itemize}
+        \item Three of the bad smells listed in the top half of the Yamashita'13 rankings also score very high in the developer survey.
+        \item Those three were {\em duplicated code, large class}, 
+        and {\em long method}.
+        \ei
+ Note that this agreement also means that the
+  Yamashita’13 study and the {\em developer survey}   concluded
+        that most of the  listed code smells are {\em not} high priority issues
+        requiring refactoring. 
+    
+
+
+In summary, just because a developer strongly believes something
+about bad smells, does
+not necessary mean that that belief is useful for the current project.
+Human developers can be clever, but their thinking can also be flawed.
+Hence it is important to double check their beliefs in, for example,
+bad smells. Tools like HISTORY perform that check, using models learned
+from the historical record.
+ 
 
 
 
 
 
 
+\input{tex/jur_char}
 
+\subsection{Correlation, Causation, and Critique}
+
+We propose HISTORY as way to critique (and possibly dismiss) proposed
+refactorings. This section discusses the value of that approach.
+
+HISTORY is a statistical method for finding ways to change code
+such that the new code has a lower chance of having defects. 
+To make these recommendations,
+HISTORY  inputs frequency counts of how often a static
+code attribute is seen in defective or non-defective modules.
+Hence, its recommendations about what to change may be wrong
+due to the famous correlation vs causation problem.
+Statistical methods that use frequency counts can only see how often
+certain events occur together, but not why that happens. Hence,
+they may conclude incorrectly that with two co-located situations,
+one might cause the other. This is not necessarily true. For
+example, the number of storks and the number of births
+in Denmark is not causally
+connected. Nevertheless, both may be correlated if certain
+migratory patterns of storks coincide with certain sociological factors.
+
+Another reason that HISTORY's recommendations might be incorrect
+is the presence of hidden constraints that are not apparent in
+its input data. 
 
 
 \subsection{Need for Planning}
@@ -979,3 +1178,82 @@ emphstyle={\color{self}\slshape},
 firstnumber=last
 %
 }}{}
+
+
+
+
+It turns out that ranking codiiiiie smells, and ignoring the low priority
+ones, is a pressing problem. As shown in our {\em Related Work} section,
+different developers and  books and tools stress the importance of different code smells. How to assess these different claims? How to avoid
+needless refactoring? How to check if a code smell found at another site
+is relevant to this site?
+
+To answer all these questions, we propose NOSE, a tool that checks
+if cpde smells really smell 
+generates candidate refactorings to reduce the chances of software
+defects. XTREE is a back-end to a decision tree learner that
+reflects on how different branches in that tree predict for
+defective or non-defective code modules. Since this tree
+is built from static code attributes, the differences between
+those brnachesy reflecting on the
+{\em delta} between those branches, it is 
+
+
+
+
+
+
+
+When modern software systems are developed, their design 
+changes continuously. Due to market constraints, the developers tend to ignore the quality of source code, thereby introducing \textit{code smells} (or \textit{anti-pattern}). These anti-patterns are generally viewed as poor solutions to recurring design problems, possibly deterring the maintainability of the system. In the past decade there has been growing evidence of the impact of anti-patterns, there now is also some empirical evidence to suggest that code containing anti-patterns are more fault prone than the rest of the code~\cite{khomh12}\cite{li07}\cite{fab15_1}. Studies show that the number of code smells increase over time and in only a very few cases are these smells addressed by refactoring \cite{fab15_1}\cite{chatzigeorgiou10}\cite{arcoverde11}. This makes early detection of these code smells a necessity to maintain sufficient quality in software systems. This being said, detection only addresses a part of the problem, what we need are recommendation systems that can assist a software developed not only by identifying potential anti-patterns, but also by (i) generating reliable refactoring options, and (ii) critiquing bad refactoring options. 
+
+Tools for detecting code smells have been the focus of several researchers lately, \cite{Tufano2015}\cite{boussaa13}. There are two  popular techniques for detecting smells: (1) by the making use of static code analysis and code quality metrics\cite{tsantalis09}; (2) Analysing software change history\cite{moha2010}. While these tools are capable of detecting these smells with a reasonable accuracy, they fail to provide developers with planning actions to improve the quality of source code.  Similar concerns were voiced by several business users, who are demanding tools that support business-level interpretations of their data. 
+
+At a panel on software analytics at ICSE`12, industrial practitioners lamented the state of the art in software analytics~\cite{menzies12a}. Panelists commented  ``prediction is all well and good, but what about decision making?''. The panelists were more interested in the interpretations and follow-up that occurs after the mining, rather than just the mining itself. We call such tools \textit{planners}. In the context of detecting code smells, the planners are required to address the following issues.
+
+\bi
+\item
+Instead of just \textit{detecting} anti-patterns and code smells, it may be beneficial to develop tools that can be used to reason about the code smells. 
+\item
+In addition to detecting anti-patterns and code smells, tools must be capable of having a contextual understanding of the data to trigger only the most useful refactoring options.
+\item Tools must provide a visual medium for developer to gauge the nature of refactoring options, thereby discarding bad solutions.
+\ei
+
+In response to this, we propose a novel {\em planning} method called XTREE which reflects on static code quality metrics to learn refactoring options to a software system such that its performance ``improves'' quantitatively. As a measure of source code quality we take into account the number of classes with defects in them. To this end, we use defect count data set by Jureczko et al. for JAVA systems~\cite{jureczko10}. In addition to defects, the aforementioned data set measures a list of static code attributes associated with each class. These code attributes allow us to reason about the measurable properties of anti-patterns. 
+
+The contributions of this paper are (1) the new XTREE planning algorithm and (2) an evaluation strategy that shows the tool performing significantly ``better'' than  the  planner  proposed in our prior work~\cite{me12c}. 
+
+The work on XTREE is motivated by the following three research questions:
+
+\bi
+\item \textbf{RQ1:} \textit{Can a planner suggest plans to improve the quality of a defective class?} This research question investigates the effectiveness of a planner in suggesting useful refactoring options to improve the quality of class by reducing the number of defects. Specifically, we use XTREE to suggest a number of valid changes to source code and we use an oracle to measure the effectiveness of the changes, see \tion{eval}. In order to ensure the changes are feasible, XTREE generate succinct plans.
+
+\item \textbf{RQ2:} \textit{Can a planner be used to critique bad refactoring options?} In addition to being able to suggesting changes, it's beneficial for planners to be able to quantitatively comment on the quality of certain refactoring options, thereby preventing unnecessary refactoring.
+
+\ei
+
+The rest of this paper  describes our data, our planners, and the experiment that ranks XTREE against alternate approaches.  This is followed by notes on related work and validity. To enable reproducibility, all scripts and data used in this study are available online at \url{http://git.io/vG3DG}.
+
+Fowler claims   removing   code smells   by
+\begin{quote}
+...applying a series of small behavior-preserving transformations, each 
+of which seem ``too small to be worth doing''. 
+The  effect of   these transformations is quite significant. By doing them in small steps you {\em reduce the risk of introducing errors}'' (our italics).
+\end{quote}
+The italics in the last paragraph offer one method for indicating if bad smell-based
+refactoring was successful. There are many automatic
+methods for learning   defect predictors from static
+code features~\cite{peters15,he13}.  We can use those
+predictors to rank $N$ proposed refactorings $R_1,R_2,...R_i$
+refactorings. Specifically, we  say that refactoring $i$ is preferred to $j$
+(denoted $R_i \succ R_j$) if the defect predictors predict fewer errors
+after applying $R_i$ than $R_j$.
+
+
+The ability to rank, and perhaps   reject, a proposed refactoring is
+an important contribution, given the current level of interest
+in bad smell-based refactoring.
+
+
+Nevertheless,
+certain results raise doubts about the value of   code smells for reducing the risk of defects in software.
