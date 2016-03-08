@@ -1,39 +1,39 @@
 \begin{figure*}[!t] 
 \scriptsize
 \centering
-\begin{tabular}{r|l|c|c|c|c}
-Mostly from Fowler'99& & & & & Developer\\
- (with a few additions)~\cite{fowler99} & Lanza'06~\cite{Lanza2006} & SonarQube~\cite{sq15}  &  Yamashita'13\cite{Yamashita2013} & Atwood'06\cite{Atwood06}  & Survey\\\hline
-  Alt. Classes with Diff. Interfaces & & & & + & \\
-  Combinatorial Explosion~\cite{Kerievsky2004} & & & & + & \\
-  Comments & & & 11 & + & VL\\
-  Conditional Complexity~\cite{Kerievsky2004} & & & 14 & + & ?\\
-  Data Class & Data Class & & & + &\\
-  Data Clumps &  &  & & + &\\
-  Divergent Change & & & & + & \\
-  Duplicated Code & Significant Duplication\textsuperscript{*} & + & 1 & + & VH\\
-  Feature Envy & Feature Envy & & 8 & + &\\
+\begin{tabular}{r|c|c|c|c|c}
+Mostly from Fowler'99~\cite{fowler99}& & & & & Developer\\
+ (with a some additions)~\cite{fowler99} & Lanza'06~\cite{Lanza2006} & SonarQube~\cite{sq15}  &  Yamashita'13\cite{Yamashita2013} & Atwood'06\cite{Atwood06}  & Survey 2015\\\hline
+  Alt. Classes with Diff. Interfaces & & & & \checkmark & \\
+  Combinatorial Explosion~\cite{Kerievsky2005} & & & & \checkmark & \\
+  Comments & & & 11 & \checkmark & VL\\
+  Conditional Complexity~\cite{Kerievsky2005} & & & 14 & \checkmark & ?\\
+  Data Class & \checkmark & & & \checkmark &\\
+  Data Clumps &  &  & & \checkmark &\\
+  Divergent Change & & & & \checkmark & \\
+  Duplicated Code & \checkmark & \checkmark & 1 & \checkmark & VH\\
+  Feature Envy & \checkmark & & 8 & \checkmark &\\
   
-  Inappropriate Intimacy & & - & & + & L\\
-  Indecent Exposure~\cite{Kerievsky2004} & & & & + & ?\\
-  Incomplete Library Class & & & & + &\\
-  Large Class & God Class/Brain Class & ++ & 4 & + & VH\\
-  Lazy Class/Freeloader & & - & 7 & + &\\
-  Long Method & Brain Method & ++ & 2 & + & VH\\
-  Long Parameter List &  & + & 9 & + & L \\
+  Inappropriate Intimacy & & \checkmark & & \checkmark & L\\
+  Indecent Exposure~\cite{Kerievsky2005} & & & & \checkmark & ?\\
+  Incomplete Library Class & & & & \checkmark &\\
+  Large Class & \checkmark & \checkmark & 4 & \checkmark & VH\\
+  Lazy Class/Freeloader & & \checkmark & 7 & \checkmark &\\
+  Long Method & \checkmark& \checkmark & 2 & \checkmark & VH\\
+  Long Parameter List &  & \checkmark & 9 & \checkmark & L \\
   
-  Message Chains & & & & + & H\\
-  Middle Man & &  & & + &\\
-  Oddball Solution~\cite{Kerievsky2004} & & & & + & \\
-  Parallel Inheritance Hierarchies & & & & + &\\
-  Primitive Obsession &  & & & + &\\
+  Message Chains & & & & \checkmark & H\\
+  Middle Man & &  & & \checkmark &\\
+  Oddball Solution~\cite{Kerievsky2005} & & & & \checkmark & \\
+  Parallel Inheritance Hierarchies & & & & \checkmark &\\
+  Primitive Obsession &  & & & \checkmark &\\
   
-  Refused Bequest & Refused Parent Bequest & - & & + & \\ 
-  Shotgun Surgery & Shotgun Surgery & & & + & \\
-  Solution Sprawl~\cite{Kerievsky2004} & & & & + &\\
-  Speculative Generality & & & & + & L\\
-  Switch Statements &  & - & & & L\\
-  Temporary Field & & - & & + & ?\\
+  Refused Bequest & \checkmark & \checkmark & & \checkmark & \\ 
+  Shotgun Surgery & \checkmark& & & \checkmark & \\
+  Solution Sprawl~\cite{Kerievsky2005} & & & & \checkmark &\\
+  Speculative Generality & & & & \checkmark & L\\
+  Switch Statements &  & \checkmark & & & L\\
+  Temporary Field & & \checkmark & & \checkmark & ?\\
   \end{tabular}
 %   \multicolumn{5}{l}{} \\
 %   \multicolumn{5}{l}{\textsuperscript{\textdagger} + Exact rule, - Possibly related rule} \\
@@ -41,8 +41,11 @@ Mostly from Fowler'99& & & & & Developer\\
 %     \multicolumn{5}{l}{\textsuperscript{\textexclamdown} VH: Very High, H: High, L: Low, VL: Very Low, ?: Still investigating} \\
 %   \multicolumn{5}{l}{\textsuperscript{*} Computation is based on more than simple metrics.} \\
 
-\caption{List of bad code smells from different sources. Empty cells
-denote some bad smell proposed by Fowler'99 that was not found relevant
-in subsequent studies. Note that there are many blank cells.}
+\caption{List of bad code smells from different sources.  Check marks (\checkmark) denote that a bad smell was mentioned.
+Numbers of symbolic labels (e.g. "VH") denote  a priorization comment.
+``?'' indicates lack of consensus on some bad smell. Empty cells
+denote some bad smell listed in column one that was not found relevant
+in subsequent studies.
+Note that there are many blank cells.}
 \label{fig:smells}
 \end{figure*}
