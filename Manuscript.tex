@@ -8,6 +8,7 @@
 \usepackage{cite}
 \usepackage{framed,graphicx,xcolor}
 
+\usepackage{rotating}
 %\usepackage{stfloats}
 
 \usepackage[shortlabels]{enumitem} 
@@ -80,7 +81,7 @@
 \definecolor{shadecolor}{gray}{0.9}
 \conferenceinfo{ISCE}{'16 Austin, Texas}
 
-\title{  How to Recognize  a Bad  ``Bad Smell'' using Contrast Sets}
+\title{  Which ``Bad Smells'' can be Ignored?}
 \numberofauthors{2} 
 \author{  
 \alignauthor
@@ -94,28 +95,41 @@ Lucas Layman \\
 \setlength{\columnsep}{7mm}}
 \maketitle
 \begin{abstract} 
-It is hard to assess
-if a ``bad smell'' is irrelevant or misleading
-for a specific project.
+The literature lists dozens of bad smells which might
+be detrimental to a software system.
+But which are relevant to the current project
+and which can be ignored?
 Developers, text books, and tools
 disagree on which bad smells are important. 
 Specifically, it is unclear at what threshold values
-for which metrics should trigger code reorganization  since
+a measurement should trigger code refactorings  since
 most studies do not offer
-both metrics {\em and} a threshold for their proposed bad smells.
-This paper proposes the XTREE contrast set
-learner to assess bad smells
-and reject any that are not supported by
-evidence in the historical record.  
-Using XTREE, we   show that the range of useful
-``bad smells'' changes from project to project. Hence,
-before refactoring, it is important to run a critique tool
-like XTREE to stop work on useless code reorganizations.
-Further, XTREE shows that many
-of the bad smells defined in standard texts and tools
-are not useful for particular projects. 
-Based on these results, we endorse  
-guiding code reorganization via bad smells, but one must empirically validate the importance of specific bad smells within the context of each project using an approach like XTREE.
+{\em both} measurable metrics {\em and} a threshold for their proposed bad smells.
+ 
+This paper proposes   XTREE, a tool to  prioritize bad smells. Given an historical
+log of defects
+seen previously in the code, XTREE
+  deprioritizes   bad smells  that have little to no support
+  in that log.
+  
+  This paper compares the bad smells found by XTREE to
+  those found by previous work by Shatnawi, Alves, and Borges. 
+  If code modules are  changed to avoid the bad
+  smells found by XTREE,  that changed system
+  has significantly fewer expected defects.
+  Also, XTREE   endorses
+  changes to far fewer code metrics.
+  Hence, it is 
+  a better tool for ruling out irrelvant bad smells.
+  For example, the XTREE results show that many of the bad smells learned 
+  by Shatnawi, Alves, and Borges can be ignored.
+   
+  
+Based on these results, we endorse using bad smells to  
+guiding refactoring. However, not all bad smells
+are   relevant to the current project.
+Hence, it is important
+to  prioritize the importance of specific bad smells within the context of each project.
 
  
 {\bf Categories/Subject Descriptors:} D.2 [Software Engineering]; I.2 [Artificial Intelligence];
@@ -165,8 +179,8 @@ papers proposing bad smell detection and repair tools.
 
 On the other hand, other papers cast doubts on the value of use bad smalls
 as triggers for code change.
-In our own work, documented later in this paper, we  show
-that tools and text books and developers can disagree on what bad smells
+As we show in this paper,  
+ tools and text books and developers can disagree on what bad smells
 are important enough to hunt down and eliminate. Our findings
 are consistent with several other papers.
 Mantyla et al.~\cite{Mantyla2004} found that within an organization,
@@ -183,20 +197,26 @@ Mantyla et al.~\cite{Mantyla2004} found that within an organization,
 Debates on when/what code should be restructed are interesting, especially
 in the current context of  widely-used SE practices such as
 test-driven agile development~\cite{beck2003test,janzen05,williams2003test,george2003initial}.
-In that approach, developers are always asking themselves ``should I reorganize this code''?
-Bad smells are a widely used  technique for deciding when to reorganize\footnote{The Fowler text is widely read-- as of  early 2016, ACM Digital Portal reports 
-it has 6434 references. Also, bad smell-based research
-is widely reported-- a search  on {\em "bad smell"+programming} 
+In that approach, developers are always asking themselves ``should I refactor this code''?
+Bad smells are a widely used  technique for deciding when to refactor\footnote{Evidence: As of  early 2016, ACM Digital Portal reports 
+the Fowler text has 6434 references. Also, bad smell-based research
+is widely reported. A search  on {\em "bad smell"+programming} 
 where {\em proceedings=ICSE} finds 1,748 papers since 2006.}.
 Hence it is important to understand the value of
  bad smells.  
 Valuable development resources can be wasted if developers
-change their code based on   bad smells that are ``bad''; i.e. 
+refactor their code based on   bad smells that are ``bad''; i.e. 
  irrelevant or misleading
 for some particular project.
  
 
-It turns out that it is hard to learn ``good'' bad smell detectors. Such a detector
+It turns out that it is hard to learn ``good'' bad smell detectors.
+As discussed on the next page, programmer
+   cognitive biases result in different
+developers declaring that
+bad smell X or Y is most important. 
+
+Also, a bad smell  detector
 is a combination of some code metric (e.g. lines of code in a method)
 and a threshold measurement (e.g. {\em loc} $>$ 100). 
 Shantnawi~\cite{Shatnawi10} warn that  there are most  studies do not offer
@@ -208,12 +228,44 @@ an extensive literature review on OO bad smells, Shantnawi remarks that there is
 of  studies  conducted to formulate bad smell guidelines,
 represented as metrics plus threshold values, that interpret the complexity of the software design using OO code metrics. 
 
+ 
+Further, it is hard to judge the  effects of removing bad smells
+for three reasons.
+Firstly, the bad smell learners currently found in the literature
+report bad smells for each code metric {\em in isolation}
+Refactored code cannot be assessed just by a rerun of the the test
+suite since
+code refactorings is meant to
+preserve the semantics of the code (i.e. the same tests
+should pass before and after the refactoring). 
+It is also problematic to assessing refactorings by making the
+refactorings,  then seeing what happens to that code for the rest
+of the project. In an test-driven agile project, as
+SCRUM meetings change what stories are implemented next,
+the operational profile that lead to defects in the old
+code may not repeat.
+
+To address the first problem of programmer cognitive biases,
+this paper proposes using the   XTREE contrast set learner to
+find bad smells. Contrast set learners   recommend {\em what to change} in order to move from
+     one classification to another (e.g. from defective=yes to
+     defective=no).
+     When applied to defect predictors from static code measures,
+that delta is a change to static code measures;
+i.e. a code refactoring. Given an historical log of defects seen previously in the code, XTREE deprioritizes bad smells that have little to no support in that log.
+
+
+
+Note that XTREE also addresses the second problem since it reports
+code metrics and useful thresholds that
+
+
+To resolve this third problem, this paper adopts
+a technique used by Harman et al.
+
 Why are there so few papers offer bad smell metrics and thresholds? For the few that
 do exist, why do developers disagree on the relevance of those bad smells?
-As discussed on the next page, one reason for this is that 
-   cognitive biases result in different
-developers declaring that
-bad smell X or Y is most important. 
+
 
 When developers cannot fully assess the value of bad smells,
 it is possible to use automatic means. 
@@ -225,14 +277,14 @@ Contrast set learners   recommend {\em what to change} in order to move from
      defective=no).
      When applied to defect predictors from static code measures,
 that delta is a change to static code measures;
-i.e. a code reorganization. Hence, constrast set learners
+i.e. a code refactoring. Hence, constrast set learners
 like XTREE can be used to  recognize ``bad''
 bad smells:
 \begin{itemize}
-    \item Consider $N$ developers each proposing a software reorganization 
+    \item Consider $N$ developers each proposing a software refactoring 
 based on a set of bad smells $S$.
 \item XTREE will (a)~learn contrast sets
-from the historical record; then (b)~reject  any reorganization based on ``bad'' bad smells, i.e.
+from the historical record; then (b)~reject  any refactoring based on ``bad'' bad smells, i.e.
  on any member of $S_{\mathit{bad}} \in S$
 that XTREE could {\em not} be found in the historical record.
 \end{itemize}
@@ -292,7 +344,7 @@ is less useful than XTREE at judging the  bad smells proposed by developers.
 
  
 
-XTREE   has certain limits. Firstly, it is an oracle that  might reject code reorganizations proposed
+XTREE   has certain limits. Firstly, it is an oracle that  might reject   refactorings proposed
 by developers. XTREE does not perform those refactorings.
 Secondly, XTREE assumes   Fowler's bad smells
 should be assessed via their contribution to software defects
@@ -324,7 +376,7 @@ The contributions of this paper are
     \item Using that learner and that oracle,
     a demonstration that XTREE is better than our prior approach~\cite{me12c}
     as well as   state of the art methods~\cite{Shatnawi10,Alves2010,hermans15}
-    at avoiding code reorganizations that are irrelevant to the task of reducing the risk of introducing defects.
+    at avoiding refactorings that are irrelevant to the task of reducing the risk of introducing defects.
     \end{itemize}
     Based on the above, we can offer
     a resolution between proponents of bad smells (e.g. Fowler, Shantnawi, Tufano~\cite{fowler99,Shatnawi10,Tufano2015}) and those who find them not useful or confusing   (e.g.Mantyla, Sj\"oberg,Yamahista et al.~\cite{Sjoberg2013,Mantyla2004,Yamashita2013}). We say
@@ -452,7 +504,7 @@ of the different bad smells the   Yamashita'13 study and the developer study:
  Note that this agreement also means that the
   Yamashita'13 study and the {\em developer survey}   concluded
         that most of the  listed code smells are {\em not} high priority issues
-        requiring code reorganization. 
+        requiring refactoring. 
  \end{itemize} 
 In summary, just because a developer strongly believes something
 about bad smells, does
@@ -574,7 +626,7 @@ that sets of code metrics must
 be changed at the same time.
 For example:
 \begin{itemize} 
-\item One way to remove unusually large methods is to reorganize that method's
+\item One way to remove unusually large methods is to refactor that method's
 functionality into several smaller ones. 
 \item If that is done,
 this means that {\em reducing} lines of code in one method
@@ -720,8 +772,8 @@ questions.
 methods described above, which one reduces defects the most?}
 
 To find an answer to this question, we will assume that developers
-reorganize their code until the bad smell thresholds no longer apply.
-This reorganization will start with some {\em initial} code
+refactor their code until the bad smell thresholds no longer apply.
+This refactor will start with some {\em initial} code
 base that is changed to a {\em new} code base. 
 For example, if the bad smell is {\em loc $>100$} and a 
 code module has (e.g.) 500 lines of code, we conduct a ``what-if''
@@ -836,14 +888,11 @@ parameter tunings, those techniques were applied to the training data and {\em n
 the test data; i.e. we took care that no clues from the test set were ever used in this tuning process.)
 
 
+\subsection{Results}
+\input{tex/results_jur.tex}
+% \input{tex/results_shatnawi.tex}
+% \input{tex/results_alves.tex}
 
-
-
-
-
-\subsection{Resylts}
-
- 
 \section{Threats to Validity}\label{sect:valid}
 
 XXXX only reorg due to the issues in the data sets.
