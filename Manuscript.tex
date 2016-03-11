@@ -910,8 +910,20 @@ Scott-Knott test described above. In this example table, XTREE is ranked the bes
  
 \input{tex/results_jur.tex}
 
+\input{tex/rq2.tex}
+ 
+\begin{figure*} 
+\centering
+\includegraphics[width=\linewidth]{figs/changes0.png}
+\caption{XTREE results.
+While \fig{counts} are the {\em number} of times a code metric was changed,
+\fig{changes} shows {\em how far} each code metric was changed. Each vertical bar
+marks the 27,50,75th percentile change seen in 40 repeats. }
+\label{figs:changes}
+\end{figure*}
+
 \fig{jur} shows the comparison results.  The Alves and Shatnami
-entries show net effects of applying (seperately) all the disjuncts
+entries show the  net effects of applying (seperately) all the disjuncts
 proposed by those methods.
 
 Three data sets are very responsive to defect reduction suggestions:
@@ -935,20 +947,7 @@ while sometimes it ties (see Jedit).
 
 
 
-
-\subsection{RQ2}
-\input{tex/rq2.tex}
-
-\subsection{RQ3}
-\begin{figure*} 
-\centering
-\includegraphics[width=\linewidth]{figs/changes0.png}
-\caption{XTREE results.
-While \fig{counts} are the {\em number} of times a code metric was changed,
-\fig{changes} shows {\em how far} each code metric was changed. Each vertical bar
-marks the 27,50,75th percentile change seen in 40 repeats. }
-\label{figs:changes}
-\end{figure*}
+ 
 
 
 % \input{tex/results_shatnawi.tex}
