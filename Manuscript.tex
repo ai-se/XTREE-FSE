@@ -1,5 +1,5 @@
 \documentclass{sig-alternate}
-\usepackage{stfloats}
+%\usepackage{stfloats}
 \usepackage{tikz}
   \def\firstcircle{(90:1.75cm) circle (2.5cm)}
   \def\secondcircle{(210:1.75cm) circle (2.5cm)}
@@ -7,7 +7,7 @@
 \usepackage{comment}
 \usepackage{cite}
 \usepackage{framed,graphicx,xcolor}
-
+\usepackage{multirow}
 \usepackage{rotating}
 %\usepackage{stfloats}
 
@@ -106,14 +106,11 @@ a measurement should trigger code refactorings  since
 most studies do not offer
 {\em both} measurable metrics {\em and} a threshold for their proposed bad smells.
  
-This paper proposes   XTREE, a tool to  prioritize bad smells. Given an historical
-log of defects
-seen previously in the code, XTREE
-  deprioritizes   bad smells  that have little to no support
-  in that log.
-  
-  This paper compares the bad smells found by XTREE to
-  those found by previous work by Shatnawi, Alves, and Borges. 
+This paper proposes   XTREE, a tool to   prioritize  bad  smells.
+Given an historical log of defects seen previously in the code, XTREE deprioritizes bad smells that have little or no support in that log. 
+
+When XTREE's recommendations are compared to 
+  those found by previous work (Shatnawi, Alves, and Borges.)
   If code modules are  changed to avoid the bad
   smells found by XTREE,  that changed system
   has significantly fewer expected defects.
@@ -160,7 +157,6 @@ performance prediction,  decision trees
 % be wasted if developers spend too much time on useless refactorings.
 
 
-
 \noindent
 According to   Fowler~\cite{fowler99}, bad smells (a.k.a. code smells)
 are ``a surface indication that usually corresponds to a deeper problem''.
@@ -182,17 +178,8 @@ as triggers for code change.
 As we show in this paper,  
  tools and text books and developers can disagree on what bad smells
 are important enough to hunt down and eliminate. Our findings
-are consistent with several other papers.
-Mantyla et al.~\cite{Mantyla2004} found that within an organization,
- developers had different perceptions on the importance of different
- bad smells.    Yamashita  and Moonen~\cite{Yamashita2013}
- surveyed 85 professional developers to conclude that it remains
- open to debate if code smells are a meaningful conceptualization  of code quality issues (from a developer's perspective). 
- Sj\"oberg et al.~\cite{Sjoberg2013} studied six developers 
- performing maintenance tasks that took three to four weeks to complete. 
- After modifying nearly 300 Java files, it was observed
- that none of the dozen investigated code smells explored in 
- that study were mostly irrelevant to to that maintenance work.
+are consistent with other research suggesting that bad
+smells may not be a useful way to guide refactoring~\cite{Mantyla2004,Yamashita2013,Sjoberg2013}.
  
 Debates on when/what code should be restructed are interesting, especially
 in the current context of  widely-used SE practices such as
@@ -208,146 +195,152 @@ Valuable development resources can be wasted if developers
 refactor their code based on   bad smells that are ``bad''; i.e. 
  irrelevant or misleading
 for some particular project.
- 
 
-It turns out that it is hard to learn ``good'' bad smell detectors.
-As discussed on the next page, programmer
+To address this problem, we propose the XTREE
+tool to judge refactorings
+proposed by developers.
+  XTREE requires:
+     \begin{itemize}
+         \item An historical log of defects seen previously in the code;
+         \item  Bad smells expressed in terms of the 
+          metrics   in that log;
+         \item Some proposed refactorings justified using those bad smells.
+     \end{itemize}
+Given that information,  XTREE can determine which
+  proposed refactorings are be ignored
+since they are not justifiedable  
+with respect to the history of this project.
+
+
+XTREE addresses four problems that  make it hard to  learn useful
+bad smells for a particular project.
+
+{\em PROBLEM \#1:} As discussed in the next section, programmer
    cognitive biases result in different
 developers declaring that
 bad smell X or Y is most important. 
+ XTREE offers a way to assess
+ competing claims about different refactorings.
+  
 
-Also, a bad smell  detector
-is a combination of some code metric (e.g. lines of code in a method)
-and a threshold measurement (e.g. {\em loc} $>$ 100). 
-Shantnawi~\cite{Shatnawi10} warn that  there are most  studies do not offer
+{\em PROBLEM \#2:} Not all bad smells can be fixed. 
+Consider
+a bad smell that is triggering on some very long method,
+yet that method must be passed as a single closure
+to a third-party GUI toolkit.  This is one
+example of a common problem-- when new code must
+be combined with code from other developers,
+sometimes the constraints imposed by the other code
+lead unavoidably to bad smells. In this case,
+a refactoring proposed to reduce that bad smell
+may be irrelevant since it cannot be applied to this code base.
+
+To address this second
+  problem, we let
+XTREE {\em reason optimistically} to find the set
+$R_0$ of refactorings that might be useful
+(for details on how that optimistic reasoning
+is implemented, see \tion{rq}).
+Since that set was generated optimistically,
+the space of actually usable refactorings is 
+the possibly smaller subset $R_1 \subseteq R_0$.
+If the developer's proposed refactoring $R_2$ is
+not in $R_0$, then it cannot be in the smaller
+set $R_1$.  As shown
+in this paper's experiments,  XTREE's
+recommendations typically include only a small subset of
+the code metrics. That is, we
+can still rule out some proposed refactorings
+since many of those proposals fall outside of the space
+of refactorings suggested by XTREE. 
+
+
+
+{\em PROBLEM \#3:}  
+Shantnawi~\cite{Shatnawi10} warns most  studies do not offer
 {\em both} a metrics and a threshold for their proposed bad smells. For example,  Darcy and Kemerer~\cite{darcy05}
 discuss what OO design metrics might defect bad smells (e.g. a excessive
 depth of inheritance tree) but they never comment on what thresholds
-means that some section of code starts to smell bad. After
-an extensive literature review on OO bad smells, Shantnawi remarks that there is a dearth
-of  studies  conducted to formulate bad smell guidelines,
-represented as metrics plus threshold values, that interpret the complexity of the software design using OO code metrics. 
+means that some section of code starts to smell bad.  
+In all our  reading of the recent literature,
+the only work we can find from other researchers that
+offers metrics {\em and} thresholds come
+from Shatnami~\cite{Shatnawi10}
+and  Alves et al.~\cite{Alves2010} (for details on those
+methods, see \tion{methods}).
+One potential problem with their approaches is that 
+they do not explore the interconnections between sets
+of code metrics. This is important if sets of
+code metrics have to be changed at the same time.
+For example, it is not possible to refactor a
+long method it several smaller ones without increasing
+the coupling metrics of a class. 
+More generally, we say that   bad smell thresholds should be
+{\em conjunctions} of metric+thresholds pairs that need to be changed {\em togehter}.
+Yet Shatnami~\cite{Shatnawi10}
+and Alves et al.   report   {\em disjunctions} of multiple metric/thresholds~\cite{Shatnawi10,Alves2010}
+which could be separately and  inappropriately used
+to guide refactoring.
+
+
+
+To address this third problem, 
+XTREE   generates {\em conjunctions} of   thresholds
+than should  be considered at the same time.
 
  
-Further, it is hard to judge the  effects of removing bad smells
-for three reasons.
-Firstly, the bad smell learners currently found in the literature
-report bad smells for each code metric {\em in isolation}
+{\em PROBLEM \#4:} It is hard to judge the  effects of removing bad smells.
 Refactored code cannot be assessed just by a rerun of the the test
 suite since
 code refactorings is meant to
 preserve the semantics of the code (i.e. the same tests
 should pass before and after the refactoring). 
-It is also problematic to assessing refactorings by making the
+Also, it many not be practical
+ to assessing refactorings by making the
 refactorings,  then seeing what happens to that code for the rest
-of the project. In an test-driven agile project, as
+of the project. In a test-driven agile project, as
 SCRUM meetings change what stories are implemented next,
 the operational profile that lead to defects in the old
-code may not repeat.
-
-To address the first problem of programmer cognitive biases,
-this paper proposes using the   XTREE contrast set learner to
-find bad smells. Contrast set learners   recommend {\em what to change} in order to move from
-     one classification to another (e.g. from defective=yes to
-     defective=no).
-     When applied to defect predictors from static code measures,
-that delta is a change to static code measures;
-i.e. a code refactoring. Given an historical log of defects seen previously in the code, XTREE deprioritizes bad smells that have little to no support in that log.
-
-
-
-Note that XTREE also addresses the second problem since it reports
-code metrics and useful thresholds that
-
-
-To resolve this third problem, this paper adopts
-a technique used by Harman et al.
-
-Why are there so few papers offer bad smell metrics and thresholds? For the few that
-do exist, why do developers disagree on the relevance of those bad smells?
+code may not be repeated in future executions. 
+To resolve this  problem, SE researchers such as 
+Cheng et al.~\cite{Cheng10}, O'Keefe et al.~\cite{OKeeffe08,OKeeffe07},
+Moghadam~\cite{Moghadam2011} and Mkaouer et al.~\cite{Mkaouer14}
+use a pair of systems: 
+\begin{enumerate}
+    \item One system to propose changes;
+\item Another, completely separate, system to assess
+how defective is the code before and after some
+refactoring.
+\end{enumerate}
+For the second system,
+ Cheng, O'Keefe, Moghadam and  Mkaouer et al. use the QMOOD hierarchical
+quality model~\cite{Bansiya02}, constructed in 2002.
+Our problem with using tools like QMOOD
+is that   quality models learned from other projects,
+may perform poorly when applied to new projects~\cite{me12d}.
 
 
-When developers cannot fully assess the value of bad smells,
-it is possible to use automatic means. 
-
-This paper proposes the XTREE contrast set learner for recognizing
-``bad'' bad smells. 
-Contrast set learners   recommend {\em what to change} in order to move from
-     one classification to another (e.g. from defective=yes to
-     defective=no).
-     When applied to defect predictors from static code measures,
-that delta is a change to static code measures;
-i.e. a code refactoring. Hence, constrast set learners
-like XTREE can be used to  recognize ``bad''
-bad smells:
-\begin{itemize}
-    \item Consider $N$ developers each proposing a software refactoring 
-based on a set of bad smells $S$.
-\item XTREE will (a)~learn contrast sets
-from the historical record; then (b)~reject  any refactoring based on ``bad'' bad smells, i.e.
- on any member of $S_{\mathit{bad}} \in S$
-that XTREE could {\em not} be found in the historical record.
-\end{itemize}
-Note that we    recommend  XTREE  is used to critize, but  not to create,
-bad smells. 
-XTREE uses frequency counts of code features seen in the historical record\footnote{From LL: Note that ``new'' bad smells may not have a historical record. A limitation to be acknowledged and a reason why developer knowledge is still relevant.}
-to generate
-predictions about the effects of changing code
-attributes. Such predictions may be inaccurate due to the infamous correlation-vs-causation problem
-where spurious correlations can suggest effects that are not
-truly causal.
-
-XXX
-
-
-Nevertheless, XTREE is a still a useful tool to critique and prune
-irrelevant bad smells since, 
-as show below, many of the bad smell detectors offered
-in the literature (and supported by readily available tools)
-fall outside of  space of
-effects found  using XTREE's analysis.
-That is,   XTREE can find 
-{\em neither} correlation {\em nor}
-causal evidence that those bad smells
-have any support   in the historical record.\footnote{From LL: You need to say what ``support from the historical record'' is early in the paper. Are you mapping code smells in source files to defects? Code smells to performance regressions? Whatever it is, give an example.} 
-
-XXXX
-
-The same cannot be said for other methods that try to learn
-bad smell thresholds. \tion{outs}
-discusses {\em outlier} methods and {\em centroid delta} methods
-for learning bad smell thresholds.
-The {\em  outlier methods}  used by
-Shatnawi, Alves and Herman et al.~\cite{Shatnawi10,Alves2010,hermans15}
-propose thresholds on all code metrics with outlier values.
-Similarly, the older {\em centroid delta} methods  used in our 
-prior work~\cite{me12c} also returns thresholds on most of the code
-metrics. That is, outlier methods and centroid deltas methods
-seem to be saying that many bad smell thresholds are possible.
-
-
-we proposed CD, short for
-``Centroid Deltas'', as a way to find bad smell thresholds:
-\begin{itemize}
-    \item Clustered
-data and generated centroids for each cluster;
-\item Computed contrast sets (i.e. the bad smells)
-as the delta between attributes in adjacent centroids $C_1 - C_2$
-where examples in $C_1$ had more defects than $C_2$.
-\end{itemize}
-As shown below, Centroid Deltas
-generates change
-recommendations that are far less effective than XTREE.
-Worse still Centroid Deltas reported bad smells
-for far more attributes than XTREE. Hence, that prior work
-is less useful than XTREE at judging the  bad smells proposed by developers.
-
+To solve this fourth problem, this study  eschews
+older quality models like QMOOD.
+Instead, we use
+Random Forests~\cite{Breiman2001} to learn defect predictors
+that are specific to the systems   studied here.
+  
  
+ As to XTREE's limitations, the tool 
+  can only comment
+on refactorings expressed in the   terminology
+as the data
+  in the historical log of a project.
+If developers want to justify their refactorings
+via bad smells expressed in other terminology,
+then a XTREE-style analysis must   wait till 
+data about those new
+terms has been collected.
 
-XTREE   has certain limits. Firstly, it is an oracle that  might reject   refactorings proposed
-by developers. XTREE does not perform those refactorings.
-Secondly, XTREE assumes   Fowler's bad smells
-should be assessed via their contribution to software defects
+Another  aspect to note about XTREE  is that the tool assumes
+Fowler's bad smells
+should be assessed only via their contribution to software defects
 (evidence: see the section in italics of the quote
 that starts this introduction). Some researchers 
  comment that   debating bad smells is  useful for more just reducing defects. For example, Bosu and Carver~\cite{bosu13} report that
@@ -363,35 +356,48 @@ Hence,
 this paper assumes that {\em better} bad smells and
 bettering at finding code changes that  {\em reducing} the chances
 that the new code will contain defects. 
- 
-The contributions of this paper are
-\begin{itemize}
-    
-    \item A new kind of contrast set learner called XTREE
-    that   critique plans of what to change   in order
-    to improve outcomes.
-    \item An experimental rig for assessing the value of tools like
-    XTREE that propose changes to software. That rig uses data mining
-    to build an oracle for the proposed changes.
-    \item Using that learner and that oracle,
-    a demonstration that XTREE is better than our prior approach~\cite{me12c}
-    as well as   state of the art methods~\cite{Shatnawi10,Alves2010,hermans15}
-    at avoiding refactorings that are irrelevant to the task of reducing the risk of introducing defects.
-    \end{itemize}
-    Based on the above, we can offer
-    a resolution between proponents of bad smells (e.g. Fowler, Shantnawi, Tufano~\cite{fowler99,Shatnawi10,Tufano2015}) and those who find them not useful or confusing   (e.g.Mantyla, Sj\"oberg,Yamahista et al.~\cite{Sjoberg2013,Mantyla2004,Yamashita2013}). We say
-    that bad smells can guide code change, but only if those bad smells are
-    first carefully assessed.  
 
 
 
-The rest of this paper discusses the cognitive
+The rest of this paper is structured as follows. XXX.
+discusses the cognitive
 biases which make developers disagree on the relevance of those bad smells to
 their particular projects.  
  That discussion is our motivation for developing the XTREE  tool
 that   carefully assesses the merit of old bad smells to new projects.  XTREE is presented in Section 3 and evalauted in the rest of the paper.
 
-\input{tex/refactor}
+
+\subsection{Contributions of this Paper }
+The XTREE learner has not been reported
+previously.
+ The experimental rig
+ used to comparatively assess
+    XTREE is another novel contribution. Using the design
+    of that rig,
+    other researchers could confirm/improve/refute
+    the conclusions of this paper.
+    Another contribution here is
+    the comparative analysis of XTREE
+    versus previously published approaches to learning
+    bad smell detectors. that comparion shows
+    that XTREE   rarely perfoms
+      worse that the other approaches~\cite{Shatnawi10,Alves2010}
+      and often is it   much better at proposing
+      changes that reduce the expected
+      value of the defects. Further, the number
+    of code metrics mentioned by XTREE is far
+    fewer than other approaches This means that XTREE is a better
+    tool for ruling out   refactorings proposed by
+    developers. 
+
+As to the relation to prior work, we
+show here that XTREE is a  superior 
+to the CD tool   developed previously with Borges~\cite{me12c}.
+
+ 
+ 
+   
+
 
 \section{Motivation}\label{sect:prelim}
 
@@ -454,6 +460,8 @@ careers.
 
 
 
+\input{tex/refactor}
+
 If the above remarks hold true for bad smells, then we would expect
 to see much disagreement on what bad smells are important and relevant
 to  a particular project. This is indeed the case.
@@ -496,16 +504,14 @@ Also, nearly half the Yamashita list of bad smells
     
 
 Two of the studies in \fig{smells} offers some comments on the relative importance
-of the different bad smells the   Yamashita'13 study and the developer study:
-    \begin{itemize}
-        \item Three of the bad smells listed in the top half of the Yamashita'13 rankings also score very high in the developer survey. Those three were {\em duplicated code, large class}, 
-        and {\em long method}.
-        \item
+of the different bad smells the   Yamashita'13 study and the developer study.Three of the bad smells listed in the top half of the Yamashita'13 rankings also score very high in the developer survey. Those three were {\em duplicated code, large class}, 
+        and {\em long method}. 
  Note that this agreement also means that the
-  Yamashita'13 study and the {\em developer survey}   concluded
-        that most of the  listed code smells are {\em not} high priority issues
+  Yamashita'13 study and the {\em developer survey}   
+  believe
+        that very few  code smells are   high priority issues
         requiring refactoring. 
- \end{itemize} 
+        
 In summary, just because a developer strongly believes something
 about bad smells, does
 not necessary mean that that belief is useful for the current project.
@@ -513,22 +519,24 @@ Human developers can be clever, but their thinking can also be distorted
 by cognitive biases.
 Hence, as shown in \fig{smells}, developers and text books and tools 
 can disagree on which bad smells are important.
-Hence it is important to have some automated tool
-that can assess their beliefs in, for example,
+Special tools are needed to assess their beliefs in, for example,
 bad smells.  
  
 
 \section{Learning Bad Smell Thresholds}
 The SE literature offers  two ways to 
-learning bad smell thresholds:
-\begin{itemize}
-    \item Approaches based on {\em outlier statistics}~\cite{erni96,bender99}
-    as used by Shatnawi~\cite{Shatnawi10}, Alvenes et al.~\cite{Alves2010}
-    and Hermans et al.~\cite{hermans15};
-    \item  Approaches based on {\em cluster deltas} that we developed
-    for   Centroid Deltas~\cite{me12c} and XTREE.
-\end{itemize}
-\subsection{  Outliers}
+learning bad smell thresholds.
+One way relies on 
+{\em outlier statistics}~\cite{erni96,bender99}. This way
+has been used   by Shatnawi~\cite{Shatnawi10}, Alvenes et al.~\cite{Alves2010}
+    and Hermans et al.~\cite{hermans15}.
+    Another approach is 
+    based on {\em cluster deltas} that we developed
+    for   Centroid Deltas~\cite{me12c} and 
+    use here for XTREE. 
+    
+These two approaches are discussed below.
+\subsection{  Outliers}\label{sect:p}
 
 The outlier approach assume that unusually large measurements are risk-prone.
 Hence, they generate one bad smell threshold for any metric
@@ -538,25 +546,29 @@ The literature lists several ways to define ``unusually large''.
 \subsubsection{Enri \& Lewerentz}
 One of the first methods was proposed Erni and Lewerentz~\cite{erni96}. 
 Given classes described with the  code metrics of \fig{ck},
-Enri and Lewerentz finds the   mean $\mu$ and the standard deviation $\sigma$
+Enri and Lewerentz found the   mean $\mu$ and the standard deviation $\sigma$
 of each
 code metrics. Their definition of problematic outlier was any code
 metric with a measurement greater than $\mu+\sigma$.
 
 Shatnami and Alves et al.~\cite{Shatnawi10,Alves2010} depreciate
-using $\mu+\sigma$. since it does not   consider the fault-proneness of classes when the thresholds are computed. Also, there is a lack of empirical validation of this method. 
+using $\mu+\sigma$. since it does not   consider the fault-proneness of classes when the thresholds are computed. Also, the method lacks  empirical validation.
 
 \subsubsection{ Shatnami}
 Shatnami~\cite{Shatnawi10}'s preferred alternative to $\mu+\sigma$
 is to use the VARL method (Value of Acceptable Risk Level) proposed by Bender~\cite{bender99} in his epidemiology studies.  This approach uses two
 thresholds which, following Shatnami's guidance, we set to
-$p_0=p_1=0.05$. VARL encodes the defect count
+$p_0=p_1=0.05$. 
+
+VARL encodes the defect count
 for each class to 0 (for no defects known) to 1 (for defects known).
-Univariate binary logistic regression is applied to learn three coefficients: $\alpha, \beta,p_0$ being
-the  constant intercept ($\alpha$), the coefficient for maximizing log-likelihood function ($\beta$),
-and a measure of how well this regression model predicts for the defects ($p_0$).
-Any code metric with $p_0>0.05$ is then rejected as being a poor defect predictor. Thresholds are then learned from the surviving metrics $M_c$ using
-the equation proposed by Bender:
+Univariate binary logistic regression is applied to learn three coefficients:  
+ $\alpha$ is  constat intercept;
+    $\beta$ is the coefficient for maximizing log-likelihood;
+  and $p_0$  
+    measures   how well this   model predicts for   defects.
+Any code metric with $p_0>0.05$ is  rejected as being a poor defect predictor. Thresholds are then learned from the surviving metrics $M_c$ using
+an equation proposed by Bender:
 \begin{equation}
  \mathit{bad\; smell\; if\;} M_c > \frac{1}{\beta }\left( {\log \left( {\frac{{{p_1}}}{{1 - {p_1}}}} \right) - \alpha } \right) 
 \end{equation}
@@ -568,8 +580,8 @@ with Shatnawi, we explore the correlation between
 the code metrics and the defect counts and   reject code metrics that are poor predictors of defects (i.e.   those  with $p > 0.05$).
 Following this, the normalized metric values are ordered in an ascending fashion (this is equivalent to computing a density function, in which the x-axis represents the weight ratio (0-100\%), and the y-axis the metric scale).
 Alves et al. then compute their 
-thresholds are then derived by choosing the percentage of the overall code that needs to be represented. For instance, Alves et al. suggest the use 90\% quantile of the overall code to derive the threshold for a specific metric. The intuition here is that the worst
-code are the outliers beyond 90\% of the normal code measurements.
+thresholds   by choosing the percentage of the overall code that needs to be represented. For instance, Alves et al. suggest the use 90\% quantile of the overall code to derive the threshold for a specific metric. The intuition here is that the worst
+code have outliers beyond 90\% of the normal code measurements.
 
 Our reading of the literature is that the Alves et al.  
 approach is preferred to that of Shatnami. For example, Herman et al.~\cite{hermans15} used the
@@ -577,7 +589,7 @@ Alves et al. method in their  2015 paper on
 exploring bad smells.
 
 
-\begin{figure*}[!b]
+\begin{figure*}[!t]
 ~\hrule~
 \begin{minipage}{.53\linewidth}
 \small
@@ -605,50 +617,37 @@ Using this tree,
  \caption{A brief tutorial on XTREE.} \label{fig:xtree_samp}
 \end{figure*}
 
-\subsubsection{Discussion of the Outlier Approach}
+\subsubsection{Discussion }\label{sect:disc}
 The advantage of the outlier
 approach is that it is simple to implement. 
 For example, in less than a day we could
-code up and apply all the approaches of Shatnami and 
-Alves et al.
+code up and apply  the Shatnami and 
+Alves et al. methods.
 
-On the other hand, these outlier approaches have major two disadvantages. 
+The outlier approaches has   two  major disadvantages. 
 Firstly, they are {\em verbose}; i.e.  they can
 propose thresholds on most of the code metrics.
 Such verbosity makes it hard   to critique and prune bad smells
 since any bad smell mentioned by a developer has some support
 somewhere amongst all those proposed thresholds.
 
-Secondly, the outlier approaches described above are all 
-{\em univariant} which means
-they do  not understand
-that sets of code metrics must
-be changed at the same time.
-For example:
-\begin{itemize} 
-\item One way to remove unusually large methods is to refactor that method's
-functionality into several smaller ones. 
-\item If that is done,
-this means that {\em reducing} lines of code in one method
-will {\em increase} the coupling of the methods of that class to
-either itself or to other classes (depending on whether or not
-the new smaller methods are placed in the original class, or in other classes).
-\item
-Hence, it can be counter-productive to act on bad smell thresholds for {\em both}
-large lines of code {\em and} seemingly excessive coupling since
-one cannot be reduced without increasing the other.
-\end{itemize}
+Secondly, the outlier approaches suffers from
+the {\em disjunction} problem discussed in the introduction.
+That is, while
+ they propose thresholds for many code metrics
+individually, they make no comment on what
+metrics need to be changed at the same time. 
 
 
 
 \subsection{Cluster Deltas}
 
-\subsubsection{CD}
-Borges and Menzies first proposed the CD centroid delta approach to avoid the drawbacks of univariant reasoning~\cite{me12c}.
-Centroid deltas are a {\em multivariant} method which
-work  as follows:
+Cluster deltas are a general method
+for learning {\em conjunctions} of changes
+that need to be applied at the same time. 
+This approach works as follows:
 \begin{itemize}
-    \item Cluster data about code modules;
+    \item Cluster the data. 
     \item Find
 neighboring clusters $C_+,C_-$ where $C_+$ has more examples of defective
 modules than $C_-$;
@@ -656,20 +655,39 @@ modules than $C_-$;
 \item $\Delta$ are changes needed in defective modules of $C_+$ to
       make them more like the less-defective modules of $C_-$
 \end{itemize}
-Note that $\Delta$ is a multivariant recommendation
-that proposes multiple changes in order to reduce defects.
+Note that $\Delta$ is a conjunction of  recommendations.
 Since it is computed
 from neighboring clusters, it   reasons about
 examples with similar distributions.  Hence,   $\Delta$  respects the naturally occurring constraints in the data. For example,
 repeating the above example about large methods,   $\Delta$   will not  suggest lowering lines of code
-without also increasing a coupling measure.
+without also increasing a coupling measure
 
-The drawback with with CD is that it is very {\em verbose}
+Cluster deltas are used in CD~\cite{me12c} and XTREE.
+
+\subsubsection{CD}
+Borges and Menzies first proposed the CD centroid delta approach to
+generate {\em conjunctions} of code metrics
+that need to be changes at the same time
+in order to reduce defects~\cite{me12c}.
+CD used the WHERE clustering algorithm developed by the
+authors for a prior application~\cite{localvsglobal}.
+Each cluster was then replaced by its centroid
+and $\Delta$ was calculated directly from the difference
+between code metrics values between one centroid
+and its nearest neighbor.
+
+
+As shown below, one drawback with with CD is that it is very {\em verbose}
 since
 CD   recommended changes to all code
 metrics with different values in those two centroids. 
 This makes it hard to use CD to   critique and prune away bad smells.
-\subsubsection{XTREE}
+
+Another drawback with CD is revealed by the comparison experiments
+in this paper: CD never worked as well as XTREE in proposing
+changes to reduce defects.
+
+\subsubsection{XTREE: Overview}
 
   XTREE  is a cluster delta algorithm
   that avoids the problem of verbose $\Delta$s.
@@ -678,14 +696,13 @@ This makes it hard to use CD to   critique and prune away bad smells.
   to find the fewest differences groupings of examples.
   
   Decision trees are built via
-  {\em iterative dichotomization} (ID).
-  ID   finds  a  split  in  the  values  of  independent  features  that  most  reduces the variability of the dependent feature. The data is then divided on that split
-  and ID is called
+  {\em iterative dichotomization} that  finds  a  split  in  the  values  of  independent  features  that  most  reduces the variability of the dependent feature. The data is then divided on that split
+  and iterative dichotomization is called
   recursively on the data in each split. In this way,
   each split is the root of a sub-tree.
   
-  The CART iterative dichotomization algorithm
-  measures the variability of continuous attribites
+  The CART iterative dichotomizer~\cite{breiman84}
+  measures   variability  
   using the  standard deviation $\sigma$ of the defect counts.
   If a code metric is split into $r$ ranges and each range is of
   size
@@ -698,97 +715,91 @@ This makes it hard to use CD to   critique and prune away bad smells.
 
 
 
-  While not usually labelled as such, ID can
+  While not usually labelled as such, CART can
   be viewed as a clustering algorithm that groups together code modules
   with similar defect counts and some shared ranges of code metrics.
-  XTREE is a post-processor to ID that reports the delta between 
+  XTREE is a post-processor to CART that reports the delta between 
   nearby groups with different defect counts. \fig{xtree_samp} offers
-  a small example of that reflection. In this example:
-  \begin{itemize}
-      \item Some project has a table of data describing its  classes in the form of \fig{ck}.
-      \item After code inspections and running test cases or operational
+  a small example of that reflection. In this example, some project has a table of data describing its  classes in the form of \fig{ck}. After code inspections and running test cases or operational
       tests, each such class is augmented with a defect count.
-      \item CART takes that table of data and, using iterative dichotomization,
+      CART takes that table of data and, 
         generates the tree of \fig{xtree_samp}.
-      \item Once the tree is built, some test case arrives and is passed
+        
+     Once the tree is built, some test case arrives and is passed
       down the tree to a leaf note (see the \textcolor{orange}{{\bf orange}} line in \fig{xtree_samp}.
-      \item XTREE then looks for a nearby leaf node with a lower defect
+       XTREE then looks for a nearby leaf node with a lower defect
       count (see the \textcolor{green}{{\bf green}} line in \fig{xtree_samp}). For that test case, XTREE proposes a bad smell
       thresholds that is  the difference between 
-      \textcolor{green}{{\bf green}} and \textcolor{orange}{{\bf orange}}.
-  \end{itemize}
+      \textcolor{green}{{\bf green}} and \textcolor{orange}{{\bf orange}}. 
   
   
-\subsubsection{XTREE: the details}
+\subsubsection{XTREE:   Details}
 
-Firslty, using the training data,  XTREE uses iterative dichotomization to
-  divide a table of $N$ code modules  into  groups of
+Using the training data,  XTREE uses CART to
+  divide  $N$ code modules  into  clusters of
 size $\alpha=\sqrt{N}$.
 
 Next, for each test code module, 
-	  find the {\em current } leaf: take each test , run it down to a leaf in the decision tree.  
-After that,	  find the {\em desired} leaf:
+	  find $C_+$ : take each test , run it down to a leaf in the decision tree.  
+After that,	  find $C_-$ as follows:
 		\begin{itemize}
-		\item Starting at {\em current}, ascend the tree $lvl\in \{0,1,2...\}$ levels;
+		\item Starting at the  $C_+$ leaf, ascend   $lvl\in \{0,1,2...\}$ tree levels;
 		\item Identify {\em sibling} leaves; i.e. leaf clusters that can be reached from level $lvl$ that are not same as {\em current }
 		\item Using the {\em score} defined above, find the {\em better} siblings; i.e. those with a {\em score} less than $\gamma=0.5$ times the mean score of {\em current}. 
 		   If none found, then repeat for $lvl += 1$. Also,
 		    return nil  if the new $lvl$ is above the root. 
-		\item  Return the {\em closest} better sibling where distance is measured between the mean centroids of that sibling and {\em current}
+		\item  Set $C_-$ to the  {\em closest} better sibling where distance is measured between the mean centroids of that sibling and {\em current}
 		\ei
-	 Also, find the {\em delta}; i.e. the set difference between  conditions in the decision tree branch to {\em desired} and {\em current}. To find that delta,
-	 for discrete attributes, delta is the value from {\em desired};
-	   for  numerics, delta is the numeric difference;
-	   and  for numerics  discretized into ranges, delta is a random number selected from the low and high boundaries of the that range. 
-	     The bad smell threshold for   is then the delta that would move
-	     the test case from the current to desired leaf.
-	       
+	 Now find $\Delta = C_+ - C_-$  by reflecting
+	 on the set difference between  conditions in the decision tree branch to $C_-$ and $C_+$. To find that delta,
+	 for discrete attributes, the delta is the value from {\em desired};
+	    for numerics  expressed as ranges, the delta is a random number selected from the low and high boundaries of the that range. 
+	  
+
+\input{tex/prediction_stats.tex}      
 	     
 \section{Evaluation}
 \subsection{Research Questions}
+To define our experiments, we  review some details
+about XTREE. 
 
-Theoretically, XTREE is a good way to learn bad smell thresholds:
-\begin{itemize}
-    \item Unlike the outlier approach, XTREE offers bad smell
-    thresholds that are specific to where test cases fall into
-    the leaves of a decision tree that predicts for defects.
-    That is, while the outlier approach offers one threshold for all
-    metrics, XTREE specializes those thresholds to particular regions of
-    the code.
-    \item
-    Unlike the outlier approach, XTREE is a multivariant approach
-    that  understands when several code
-metrics should  be changed in unison. 
-\item Unlike CD, it is less verbose. 
-XTREE does not report all the deltas between
-adjacent clusters. Rather, it just reports the deltas in the code
-metrics that a decision tree learner has determined are the minimun
-changes required to distinguish one grouping from another.
-\end{itemize}
-Both these claims need to be tested, which leads to the following research
-questions.
+ XTREE proposes
+conjunctions of changes that might perform better than
+the disjunctions proposed by Shatnami and Alves et al.
+Further,
+unlike CD, XTREE   should be less verbose since
+it just reports the deltas in the code
+metrics selected by a decision tree learner.
+ 
+In order to test the value of the above,
+we propose three research questions.
 
-{\bf RQ1: Effectiveness.} {\em In a comparison of  the outlier and cluster delta
-methods described above, which one reduces defects the most?}
+\subsubsection{ RQ1: Effectiveness} \label{sect:rq}
+
+{\em In a comparison of   outlier and cluster delta
+methods, which one most reduces the expected number
+of defects?}
 
 To find an answer to this question, we will assume that developers
 refactor their code until the bad smell thresholds no longer apply.
 This refactor will start with some {\em initial} code
-base that is changed to a {\em new} code base. 
-For example, if the bad smell is {\em loc $>100$} and a 
-code module has (e.g.) 500 lines of code, we conduct a ``what-if''
-query and create a {\em new} code base with that module having {\em loc=100}.
+base which is changed to a {\em new} code base. 
+For example, if the bad smell is \mbox{{\em loc $>100$}} and a 
+code module has (e.g.) 500 lines of code, we reason
+optimistically that we can change that code metric
+to 100.  
 Using a defect
-predictor learned from static code metrics, we then predict the
-number of defects in $d_0,d_1$ in {\em initial} and {\em new},
-respectively. In this experiment,
-the best bad smell threshold detector is the one that maximizes
+predictor learned via Random Forest, we then predict the
+number of defects in $d_0,d_1$ in {\em initial} and {\em new}.  
+The best bad smell threshold detector is the one that maximizes
 \begin{equation}\label{eq:diff}
 \mathit{improvement} = 100* \left(1 - \frac{ d_1 }{ d_0}\right)
 \end{equation}
 
-{\bf RQ2: Verbosity.}   {\em In a comparison of  the outlier and cluster delta
-methods described above, which one proposes the fewest thresholds?}
+\subsubsection{RQ2: Verbosity} 
+
+{\em In a comparison of    outlier and cluster delta
+methods , which one proposes the fewest thresholds?}
 
 Note that this is important since our goal is to critique and, possibly,
 reject irrelevant bad smell detectors. As mentioned above,
@@ -796,14 +807,15 @@ reject irrelevant bad smell detectors. As mentioned above,
 since any bad smell mentioned by a developer has some support
 somewhere amongst all those proposed thresholds.
 
-{\bf RQ3: Co-change.}   {\em Does XTREE respect code
-metrics that need to be changed together? }
+\subsubsection{RQ3: Co-change}  
+
+{\em Does XTREE understand what
+metrics get changed together? }
 
 For example, in XTREE's thresholds,  if {\em loc} is
 reduced, does some coupling measure increase?
 
  
-\input{tex/prediction_stats.tex}
 
 \subsection{Test Data}\label{sect:tesd}
 
@@ -816,15 +828,57 @@ metrics, see  \fig{ck}. For details on the rows and versions
 of that data, see the left-hand-side columns of \fig{j}.
 
 
-\subsection{Statistics}
-Three of our methods are deterministic (Shatnami, Alves et al.,
-and XTREES) while the CD uses some stochastic processing
-in its clustering (CD uses the  WHERE clusterer~\cite{Menzies2013:local}). Hence, to compare all
-four methods, we must run the analysis many times. 
-We use  40 repeated runs, each with different random number seeds (we use 40 since that is  more than the 30 samples  needed to satisfy the central limit theorem). Each run collects the \fig{diff} values
-uses defect predictions make for the {\em new} and {\em initial} code.
 
-To rank these 40 numbers collected from CD, XTREE,Shatnami, and Alves et al.), we  use the Scott-Knott test recommended by Mittas and Angelis~\cite{mittas13}. 
+
+\newpage
+\subsection{Assessment Oracles}
+\label{sect:eval}
+Prior work~\cite{Cheng10,OKeeffe08,OKeeffe07,Moghadam2011,Mkaouer14} 
+used the QMOOD hierarchical quality model ~\cite{Bansiya02} to assess the results of their refactorings
+Since the QMOOD method is quite old (2002), we  used Random Forests~\cite{Breiman2001} to build
+the assessment methods.
+
+  Random Forests are a decision tree learning method but
+  instead of building one tree, hundreds are built using
+  randomly selected subsets of the data. The final predictions
+  come from averaging the predictions over all the trees.
+  Recent students rank Random Forests as  the top-most
+  effective defect prediction learning algorithm~\cite{lessmann}.
+  
+\fig{j} shows   studies with Random Forests and
+the Jureczko data. Given access to $V$ released versions, we test on version $V$ and train on the available data from $V-1$ earlier releases (as shown in \fig{j}. Note the   \colorbox{lavenderpink}{three bottom rows}   marked with $\times$: these contain predominately defective classes (two-thirds, or more).  In such data sets, it is hard to distinguish good from bad (since there are so many bad examples). 
+
+In order to identify the presence (or absence) of defects, we can   use Boolean classes in the  Jureczko data ( \texttt{True} if defects $\gt$ 0; \texttt{False} if defects = 0). For such data, the quality of the predictor can be measured using (1) the  probability of detection (a.k.a. ``pd'' or recall):  the percent of faulty classes in the test data detected by the {\em predictor}; and (2) the  probability of false alarm (a.k.a. ``pf''): the percent of non-fault classes that are {\em predicted} to be defective.
+
+The ``untuned'' columns of \fig{j}
+show a preliminary study. Random Forests was built from the training data, then applied to the test data.   We call a data set ``usable'' if Random Forest was able to classify majority of the instances correctly. For this purpose, we set a threshold of $\mathit{pd}\ge 60 \wedge \mathit{pf} \le 30$\% (determined from standard results in other publications~\cite{me07b}). No  data set meet
+that criteria.
+
+Fortunately, the ``tuned'' columns of \fig{j} show that we can salvage some of the data sets. Pelayo and Dick~\cite{pelayo07} report that defect prediction is improved by SMOTE~\cite{Chawla2002}; i.e. an over-sampling of minority-class examples and an under-sampling of majority-class examples. Also, Fu et al.~\cite{fu:ase15} report that parameter tuning with differential evolution~\cite{storn97} can quickly explore the tuning options of Random Forest to find better settings for the (e.g.) size of the forest, the termination criteria
+for tree generation, etc. The rows \colorbox{celadon}{marked with a $\star$} in \fig{j} show data sets whose performance was improved remarkably by these techniques. For example, in {\em poi}, the recall increased by 4\% while the false alarm rate dropped by 21\%. However,  as might have been expected, we could not salvage the data sets in the  three bottom rows.
+
+In summary, while we cannot trust predictors from some of our Jureczko data sets,
+we can plan ways to reduce defects in {\em jedit, ivy, ant, lucene} and {\em poi}.
+Accordingly, when this study explores the Jureczko data, we will use these five data sets.
+
+(Aside: One important detail to be stressed here is that, when we applied    SMOTE-ing and
+parameter tunings, those techniques were applied to the training data and {\em not}
+the test data; i.e. we took care that no clues from the test set were ever used in this tuning process.)
+
+
+
+\subsection{Statistics}
+Two of our  methods  (Shatnami, Alves et al.) are fully deterministic
+(which is to say, if we run them $N$ times, we will always get the same result).
+However, our other methods use some random choices: CD uses the  stochastic WHERE clustering algorithm ~\cite{Menzies2013:local}
+while XTREE non-deterministically picks thresholds randomly from
+the high and low boundary of a range. 
+ Hence, to compare all
+four methods, we must run the analysis many times. 
+
+We use  40 repeated runs, each with different random number seeds (we use 40 since that is  more than the 30 samples  needed to satisfy the central limit theorem). Each run collects the \eq{diff} values.
+
+To rank these 40 numbers collected from CD, XTREE,Shatnami, and Alves et al., we  use the Scott-Knott test recommended by Mittas and Angelis~\cite{mittas13}. 
 In accordance to that test, using the median values of each method, we
 sort a list of  $l=40$ values of \eq{diff} values found in  $ls=4$ different methods. 
 Then, we split $l$ into sub-lists $m,n$ in order to maximize the expected value of differences  in the observed performances before and after divisions. E.g. for lists $l,m,n$ of size $ls,ms,ns$ where $l=m\cup n$: \[E(\Delta)=\frac{ms}{ls}abs(m.\mu - l.\mu)^2 + \frac{ns}{ls}abs(n.\mu - l.\mu)^2\]
@@ -842,56 +896,64 @@ range, or IQR).
 \begin{tabular}{{l@{~~~}l@{~~~}r@{~~~~}r@{~~~}c@{}r}} 
 \arrayrulecolor{lightgray}
 \rowcolor{lightgray}\textbf{Rank} & \textbf{Treatment} & \textbf{Median} & \textbf{IQR} & \\
-1 &      XTREE &    62  &  6 & \quart{47.2}{4.8}{49.6}{115}  \\
-\hline 2 &      CD &    44  &  18 & \quart{28}{14.4}{35.2}{115} \\
-2   & Alves        &    40  & 20  & \quart{30}{10}{50}{10}\\
+1 &      XTREE &    62  &  6 & \quart{67.2}{7}{69.6}{115}  \\
+\hline 2   & Alves        &    40  & 20  & \quart{45}{10}{50}{10}\\
+\hline 3 &      CD &    24  &  18 & \quart{28}{14.4}{35.2}{115} \\
+\hline 4   & Shatnawi        &    15  & 10  & \quart{28}{5}{30}{10}\\\hline
 \end{tabular}}
 \end{center}
 In this example table, the rows are  sorted on the median values of each method. Note that all the methods have \eq{diff} $\gt 0\%$; i.e. all these methods reduced the expected value of the performance score in that experiment while XTREE achieved the greatest reduction (of 62\% from the original value).
 The above example table has a  left-hand-side  {\bf Rank} column, computed using the
-Scott-Knott test described above. In this example table, XTREE is ranked the best, while CD and Alves  are ranked the worst.
-
-
-
-
-\subsection{Orcales}
-\label{sect:eval}
-  
-  An important part of this process is having an oracle
-  that can assess the defect potential of the {\em initial}
-  and {\em new code}. This section describes how we built
-  that oracle, using Random Forests~\cite{Breiman2001}
-  from the SciKit learn kit~\cite{Pedregosa2012}.
-  Random Forests are a decision tree learning method but
-  instead of building one tree, hundreds are built using
-  randomly selected subsets of the data. The final predictions
-  come from averaging the predictions over all the trees.
-  Recent students rank Random Forests as  the top-most
-  effective defect prediction learning algorithm~\cite{lessmann}.
-  
-\fig{j} shows our preliminary studies with Random Forests and
-the Jureczko data. Given access to $V$ released versions, we test on version $V$ and train on the available data from $V-1$ earlier releases (as shown in \fig{j}, this means that we are training on hundreds to thousands of classes and testing on smaller test suites). Note the   \colorbox{lavenderpink}{three bottom} \colorbox{lavenderpink}{rows}   marked with $\times$: these contain predominately defective classes (two-thirds, or more).  In such data sets, it is hard to distinguish good from bad (since there are so many bad examples). 
-
-In order to identify the presence (or absence) of defects, we can   use Boolean classes in the  Jureczko data ( \texttt{True} if defects $\gt$ 0; \texttt{False} if defects = 0). For such data, the quality of the predictor can be measured using (1) the  probability of detection (a.k.a. ``pd'' or recall):  the percent of faulty classes in the test data detected by the {\em predictor}; and (2) the  probability of false alarm (a.k.a. ``pf''): the percent of non-fault classes that are {\em predicted} to be defective.
-
-As a preliminary study, we split the Jureczko  data into train and test groups. Random Forests was built from the training data, then applied to the test data. The ``untuned'' columns of \fig{j} shows those results. We called a data set ``usable'' if Random Forest was able to classify majority of the instances correctly. For this purpose, we set a threshold of $\mathit{pd}\ge 60 \wedge \mathit{pf} \le 30$\% to select suitable data sets. With this threshold, however, none of our data sets were be suitable for this study.
-
-Fortunately, the ``tuned'' columns of \fig{j} show that we can salvage some of the data sets. Pelayo and Dick~\cite{pelayo07} report that defect prediction is improved by SMOTE~\cite{Chawla2002}; i.e. an over-sampling of minority-class examples and an under-sampling of majority-class examples. Also, Fu et al.~\cite{fu:ase15} report that parameter tuning with differential evolution~\cite{storn97} can quickly explore the tuning options of Random Forest to find better settings for the (e.g.) size of the forest, the termination criteria
-for tree generation, etc. The rows \colorbox{celadon}{marked with a $\star$} in \fig{j} show data sets whose performance was improved remarkably by these techniques. For example, in {\em poi}, the recall increased by 4\% while the false alarm rate dropped by 21\%. However,  as might have been expected, we could not salvage the data sets in the  three bottom rows.
-
-In summary, while we cannot trust predictors from some of our Jureczko data sets,
-we can plan ways to reduce defects in {\em jedit, ivy, ant, lucene} and {\em poi}.
-Accordingly, when this study explores the Jureczko data, we will use these five data sets.
-
-(Aside: One important detail to be stressed here is that, when we applied    SMOTE-ing and
-parameter tunings, those techniques were applied to the training data and {\em not}
-the test data; i.e. we took care that no clues from the test set were ever used in this tuning process.)
-
+Scott-Knott test described above. In this example table, XTREE is ranked the best, while Shatnami is  ranked   worst.
 
 \subsection{Results}
+ 
 \input{tex/results_jur.tex}
+
+\fig{jur} shows the comparison results.  The Alves and Shatnami
+entries show net effects of applying (seperately) all the disjuncts
+proposed by those methods.
+
+Three data sets are very responsive to defect reduction suggestions:
+Jedit, Ant, and Ivy (all of which show best case improvements over 50\%.
+ The Jedit results are  
+surprisingly uniform  suggesting that in that data set that
+our methods all find the same ways to reduce the expected number of
+defects.  
+
+Two data sets are not very responsive to defect reduction:
+Poi and Lucene. The reason for this can be see in \fig{j}:
+both these data sets contain more than 50\% defective modules.
+In that space, all our  methods lack a large sample to
+defect-free examples. 
+
+More important that the size of the improvement is the relative
+rank of the different approaches,
+ CD and Shatnawi usually  perform comparatively worse while  XTREE gets top ranked position the most
+number of times. That said, Alves sometimes beats XTREE (see Ivy)
+while sometimes it ties (see Jedit).
+
+
+
+
+\subsection{RQ2}
+\input{tex/rq2.tex}
+
+\subsection{RQ3}
+\begin{figure*} 
+\centering
+\includegraphics[width=\linewidth]{figs/changes0.png}
+\caption{XTREE results.
+While \fig{counts} are the {\em number} of times a code metric was changed,
+\fig{changes} shows {\em how far} each code metric was changed. Each vertical bar
+marks the 27,50,75th percentile change seen in 40 repeats. }
+\label{figs:changes}
+\end{figure*}
+
+
 % \input{tex/results_shatnawi.tex}
 % \input{tex/results_alves.tex}
+
 
 \section{Threats to Validity}\label{sect:valid}
 
@@ -997,7 +1059,7 @@ To those notes, we add a few more details. If possible, planners should be asses
 examples can be assigned objective scores via  some model. In this approach, a changed example can be assessed by
 generating actual objective scores from the model. 
 
-\input{tex/results_models.tex}
+% \input{tex/results_models.tex}
 
 The POM3 model~\cite{boehm2003using},~\cite{port2008} is a tool for exploring management challenges. POM3 implements the Boehm and Turner model of agile programming~\cite{boehm2003balancing} where teams select tasks as they appear in the scrum backlog.  POM3 can study the implications of different ways to adjust task lists in the face of shifting priorities. The model outputs estimated task completion rates; programmer idle rates; and total overall cost. POM3 models requirements as a dependency tree. A single requirement in the tree of a prioritization value has a cost, along with a list of child-requirements and dependencies. Before any requirement can be satisfied, its children and dependencies must first be satisfied. POM3 simulates changing priorities by making teams aware of random items in the requirements tree at random intervals, thus forcing teams to constantly readjust their "to do" lists. For further details on this model see~\cite{boehm2003using},~\cite{port2008}, and~\cite{boehm2003balancing}. 
 
