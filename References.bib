@@ -7,11 +7,12 @@ note="Online at https://goo.gl/MZ0h6H."
 }
 
 @misc{sq15,
-title="Sonar{Q}ube: open source quality management",
-author="A. Campbell",
-year=2015,
-note="Website: http://docs.sonarqube.org/display/HOME/SonarQube+Platform"
+title={Sonar{Q}ube: Open Source Quality Management},
+author={A. Campbell},
+year={2015},
+note="Website: tiny.cc/2q4z9x"
 }
+
 @BOOK {Kerievsky2005,
     author    = "Joshua Kerievsky",
     title     = "Refactoring to Patterns",
@@ -288,11 +289,14 @@ year = {2010}
   organization={IEEE}
 }
 @article{darcy05,
-author="D. Darcy and C. Kemerer",
-year=2005,
-journal="IEEE Software",
-issue="Nov/Dec"
-pages={17--19}
+  title={O{O} metrics in practice},
+  author={Darcy, David P and Kemerer, Chris F},
+  journal={Software, IEEE},
+  volume={22},
+  number={6},
+  pages={17--19},
+  year={2005},
+  publisher={IEEE}
 }
 
 @inproceedings{arcoverde11,
@@ -768,6 +772,44 @@ abstract = "Our project goal is to specify, implement, and verify quantitative m
   bibsource = {dblp computer science bibliography, http://dblp.org}
 }
 
+@inproceedings{Nam15,
+ author = {Nam, Jaechang and Kim, Sunghun},
+ title = {Heterogeneous Defect Prediction},
+ booktitle = {Proceedings of the 2015 10th Joint Meeting on Foundations of Software Engineering},
+ series = {ESEC/FSE 2015},
+ year = {2015},
+ isbn = {978-1-4503-3675-8},
+ location = {Bergamo, Italy},
+ pages = {508--519},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2786805.2786814},
+ doi = {10.1145/2786805.2786814},
+ acmid = {2786814},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Defect prediction, heterogeneous metrics, quality assurance},
+} 
+
+
+@inproceedings{Jing15,
+ author = {Jing, Xiaoyuan and Wu, Fei and Dong, Xiwei and Qi, Fumin and Xu, Baowen},
+ title = {Heterogeneous Cross-company Defect Prediction by Unified Metric Representation and CCA-based Transfer Learning},
+ booktitle = {Proceedings of the 2015 10th Joint Meeting on Foundations of Software Engineering},
+ series = {ESEC/FSE 2015},
+ year = {2015},
+ isbn = {978-1-4503-3675-8},
+ location = {Bergamo, Italy},
+ pages = {496--507},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2786805.2786813},
+ doi = {10.1145/2786805.2786813},
+ acmid = {2786813},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Heterogeneous cross-company defect prediction (HCCDP), canonical correlation analysis (CCA), common metrics, company-specific metrics, unified metric representation},
+} 
+
+
 
 @inproceedings{Olbrich2009,
  author = {Olbrich, Steffen and Cruzes, Daniela S. and Basili, Victor and Zazworka, Nico},
@@ -786,7 +828,7 @@ abstract = "Our project goal is to specify, implement, and verify quantitative m
 } 
 
 @INPROCEEDINGS{Mantyla2004, 
-author={Mäntylä, M.V. and Vanhanen, J. and Lassenius, C.}, 
+author={Mantyla, M.V. and Vanhanen, J. and Lassenius, C.}, 
 booktitle={Software Maintenance, 2004. Proceedings. 20th IEEE International Conference on}, 
 title={Bad smells - humans as code critics}, 
 year={2004}, 
@@ -870,19 +912,6 @@ title = {{Converging on the Optimal Attainment of Requirements}},
 year = {2002}
 }
 
-@article{Menzies2013:local,
-abstract = {Existing research is unclear on how to generate lessons learned for defect prediction and effort estimation. Should we seek lessons that are global to multiple projects or just local to particular projects? This paper aims to comparatively evaluate local versus global lessons learned for effort estimation and defect prediction. We applied automated clustering tools to effort and defect datasets from the PROMISE repository. Rule learners generated lessons learned from all the data, from local projects, or just from each cluster. The results indicate that the lessons learned after combining small parts of different data sources (i.e., the clusters) were superior to either generalizations formed over all the data or local lessons formed from particular projects. We conclude that when researchers attempt to draw lessons from some historical data source, they should 1) ignore any existing local divisions into multiple sources, 2) cluster across all available data, then 3) restrict the learning of lessons to the clusters from other sources that are nearest to the test data.},
-author = {Menzies, Tim and Butcher, Andrew and Cok, David and Marcus, Andrian and Layman, Lucas and Shull, Forrest and Turhan, Burak and Zimmermann, Thomas},
-doi = {10.1109/TSE.2012.83},
-issn = {00985589},
-journal = {IEEE Transactions on Software Engineering},
-keywords = {Data mining,clustering,defect prediction,effort estimation},
-number = {6},
-pages = {822--834},
-title = {{Local versus global lessons for defect prediction and effort estimation}},
-volume = {39},
-year = {2013}
-}
 
 @ARTICLE{menzies13:brady, 
 author={Menzies, T. and Brady, A. and Keung, J. and Hihn, J. and Williams, S. and El-Rawas, O. and Green, P. and Boehm, B.}, 
@@ -901,7 +930,6 @@ ISSN={0098-5589},}
 @inproceedings{me07f,
 abstract = {Adoption of advanced automated SE (ASE) tools would be favored if a business case could be made that these tools are more valuable than alternate methods. In theory, software prediction models can be used to make that case. In practice, this is complicated by the "local tuning" problem. Normally, predictors for software effort and defects and threat use local data to tune their predictions. Such local tuning data is often unavailable. This paper shows that assessing the relative merits of different SE methods need not require precise local tunings. STAR1 is a simulated annealer plus a Bayesian post-processor that explores the space of possible local tunings within software prediction models. STAR1 ranks project decisions by their effects on effort and defects and threats. In experiments with two NASA systems, STAR1 found that ASE tools were necessary to minimize effort/ defect/ threats.},
 address = {New York, NY, USA},
-annote = {Available from $\backslash$url\{http://menzies.us/pdf/07casease-v0.pdf\}},
 author = {Menzies, Tim and Feather, Martin S and Madachy, Ray and Boehm, Barry W.},
 booktitle = {Proc. ASE},
 doi = {http://doi.acm.org/10.1145/1321631.1321676},
@@ -1826,6 +1854,8 @@ address = {Los Alamitos, CA, USA},
   keywords={automatic test pattern generation;data mining;pattern clustering;PROMISE repository;automated clustering tools;data source;defect dataset;defect prediction;effort estimation;global lessons;learned lesson generated rule;local lessons;Context;Data models;Estimation;Java;Measurement;Software;Telecommunications;Data mining;clustering;defect prediction;effort estimation}, 
   doi={10.1109/TSE.2012.83}, 
   ISSN={0098-5589},}
+  
+  
 @ARTICLE{lessmann, 
   author={Lessmann, S. and Baesens, B. and Mues, C. and Pietsch, S.}, 
   journal={Software Engineering, IEEE Transactions on}, 
@@ -1862,6 +1892,7 @@ address = {Los Alamitos, CA, USA},
   title= {Tuning for Software Analytics: is it Really Necessary?},
   booktitle={Submitted to ASE journal},
   author={Fu, Wei and Menzies, Tim and Shen, Xipeng},
+  journal={Submitted to Information and Software Technology},
   year={ 2016},
   }
 
@@ -1935,6 +1966,21 @@ pages = {11:1----11:61},
 title = {{Search-based Software Engineering: Trends, Techniques and Applications}},
 volume = {45},
 year = {2012}
+}
+@inproceedings{sayyad13b,
+  title={Scalable product line configuration: A straw to break the camel's back},
+  author={Sayyad, Abdel Salam and Ingram, Joe and Menzies, Tim and Ammar, Hany},
+  booktitle={Automated Software Engineering (ASE), 2013 IEEE/ACM 28th International Conference on},
+  pages={465--474},
+  year={2013},
+  organization={IEEE}
+}
+
+@inproceedings{sayyad13a,
+  title={On the Value of User Preferences in Search-Based Software Engineering: A Case Study in Software Product Lines},
+  author={Sayyad, Abdel Salam and Menzies, Tim and Ammar, Hany},
+  booktitle={International Conference on Software Engineering (ICSE'13)},
+  year={2013}
 }
 
 @inproceedings{Kocaguneli2013:ep,
@@ -2155,42 +2201,6 @@ url="http://dx.doi.org/10.1007/978-3-642-23716-4_9"
 }
 
 
-@inproceedings{me11m,
-  title =	"Local vs Global Models for Effort Estimation and
-                  Defect Prediction",
-  author =	"Menzies, Tim and Butcher, Andrew and Marcus, Andrian
-                  and Zimmermann, Thomas and Cok, David",
-  year =	2011,
-  booktitle =	"IEEE ASE'11",
-  class =	"hC",
-  note =	"Available from
-                  \url{http://menzies.us/pdf/11ase.pdf}"
-}
-
-
-@article{me12d,
-  author    = {Tim Menzies and
-               Andrew Butcher and
-               David R. Cok and
-               Andrian Marcus and
-               Lucas Layman and
-               Forrest Shull and
-               Burak Turhan and
-               Thomas Zimmermann},
-  title     = {Local versus Global Lessons for Defect Prediction and Effort
-               Estimation},
-  journal   = {IEEE Trans. Software Eng.},
-  volume    = {39},
-  number    = {6},
-  year      = {2013},
-  pages     = {822-834},
- class =	"hJ",
-  note =	"Available from
-                  \url{http://menzies.us/pdf/12localb.pdf}",
-
-}
-
-
 
 @article{betten14,
 year={2014},
@@ -2314,21 +2324,6 @@ pages = {407--429},
 title = {{Variability and reproducibility in software engineering: A study of four companies that developed the same system}},
 volume = {35},
 year = {2009}
-}
-
-
-@article{menzies2013,
-abstract = {Existing research is unclear on how to generate lessons learned for defect prediction and effort estimation. Should we seek lessons that are global to multiple projects or just local to particular projects? This paper aims to comparatively evaluate local versus global lessons learned for effort estimation and defect prediction. We applied automated clustering tools to effort and defect datasets from the PROMISE repository. Rule learners generated lessons learned from all the data, from local projects, or just from each cluster. The results indicate that the lessons learned after combining small parts of different data sources (i.e., the clusters) were superior to either generalizations formed over all the data or local lessons formed from particular projects. We conclude that when researchers attempt to draw lessons from some historical data source, they should 1) ignore any existing local divisions into multiple sources, 2) cluster across all available data, then 3) restrict the learning of lessons to the clusters from other sources that are nearest to the test data.},
-author = {Menzies, Tim and Butcher, Andrew and Cok, David and Marcus, Andrian and Layman, Lucas and Shull, Forrest and Turhan, Burak and Zimmermann, Thomas},
-doi = {10.1109/TSE.2012.83},
-issn = {00985589},
-journal = {IEEE Transactions on Software Engineering},
-keywords = {Data mining,clustering,defect prediction,effort estimation},
-number = {6},
-pages = {822--834},
-title = {{Local versus global lessons for defect prediction and effort estimation}},
-volume = {39},
-year = {2013}
 }
 
 
