@@ -78,7 +78,7 @@
 \pagenumbering{arabic} 
 
 \usepackage[svgnames]{xcolor}
-\usepackage[framed]{ntheorem}
+   \usepackage[framed]{ntheorem}
 \usepackage{framed}
 \usepackage{tikz}
 \usetikzlibrary{shadows}
@@ -286,7 +286,7 @@ than should  be considered at the same time.
  
 {\em PROBLEM \#4:} It is hard to judge the  effects of removing bad smells.
 Refactored code cannot be assessed just by a rerun of the the test
-suite since (refactorings are supposed to preserve behavior), and otherwise one must wait for new defect reports to evaluate the effect of refactoring changes on code.  
+suite (since refactorings are supposed to preserve behavior), and otherwise one must wait for new defect reports to evaluate the effect of refactoring changes on code.  
 % waiting to observe 
 % code refactorings is meant to
 % preserve the behavior of the system (i.e. the same tests
@@ -537,9 +537,8 @@ an equation proposed by Bender:
 \begin{equation}
  \mathit{bad\; smell\; if\;} M_c > \frac{1}{\beta }\left( {\log \left( {\frac{{{p_1}}}{{1 - {p_1}}}} \right) - \alpha } \right) 
 \end{equation}
-For consistency
-with Shatnawi, we explore the correlation between
-the code metrics and the defect counts and   reject code metrics that are poor predictors of defects (i.e.   those  with $p > 0.05$).
+
+\newpage
 \subsubsection{ Alves et al.}
 Alves et al.~\cite{Alves2010} propose another approach
 to finding thresholds that  utilizes the underlying statistical distribution and scale of the metrics. 
@@ -548,6 +547,10 @@ The normalized metric values are ordered in an ascending fashion (this is equiva
 Alves et al. then select a percentage value (they suggest 90\%) which represents the ``normal'' values for metrics. The metric threshold, then, is the metric value for which 90\% of the classes fall below. The intuition  is that the worst code has outliers beyond 90\% of the normal code measurements. Hermans et al.~\cite{hermans15} used the
 Alves et al. method in their  2015 paper on
 exploring bad smells.
+
+For consistency
+with Shatnawi, we explore the correlation between
+the code metrics and the defect counts and   reject code metrics that are poor predictors of defects (i.e.   those  with $p > 0.05$).
 
 
 \begin{figure*}[!t]
@@ -839,7 +842,7 @@ We eliminate the data sets for which we could not build an adequately performing
 
 
 We use 40 repeated runs, each with different random number seeds (we use 40 since that is  more than the 30 samples  needed to satisfy the central limit theorem). Each run collects the \eq{diff} values.
-We use multiple runs since two of our methods use some random choices: CD uses the  stochastic WHERE clustering algorithm~\cite{Menzies2013:local}
+We use multiple runs since two of our methods use some random choices: CD uses the  stochastic WHERE clustering algorithm~\cite{localvsglobal}
 while XTREE non-deterministically picks thresholds randomly from
 the high and low boundary of a range. 
  Hence, to compare all
@@ -856,7 +859,7 @@ some statistical test is applied to the two divisions to check if they
 are statistically significant different. If so, Scott-Knott recurses
 into both halves.
 
-In implement Scott-Knott using our data,
+To  apply Scott-Knott,
   we
 sorted a list of  $l=40$ values of \eq{diff} values found in  $ls=4$ different methods. 
 Then, we split $l$ into sub-lists $m,n$ in order to maximize the expected value of differences in the observed performances before and after divisions. E.g. for lists $l,m,n$ of size $ls,ms,ns$ where $l=m\cup n$: \[E(\Delta)=\frac{ms}{ls}abs(m.\mu - l.\mu)^2 + \frac{ns}{ls}abs(n.\mu - l.\mu)^2\]
@@ -887,7 +890,7 @@ results, XTREE is ranked the best, while CD is  ranked   worst.
 % \end{center}
 
 \input{tex/rq2.tex}
-\newpage
+ 
 \subsection{Results}
  
  
@@ -1221,7 +1224,7 @@ had issues with the defect data sets with  many defects
 \newpage
  
 \section{Conclusions}
-Which  bad smells be ignored? 
+Which  bad smells can  be ignored? 
 We say: ignore those not supported by the historical log of data from
 the current project.  
 
@@ -1793,9 +1796,9 @@ Our methods use some stochastic algorithms; e.g. WHERE's selection of ``what exa
 
 To rank our methods using the results from these 40 repeats, we use the Scott-Knott test recommended by Mittas and Angelis~\cite{mittas13}. 
 
-In accordance to that test, using the median values of each method, we
+In accordance to that test,  we
 sort a list of  $l=40$ values of $R$ values found in  $ls=4$ different methods. 
-Then, we split $l$ into sub-lists $m,n$ in order to maximize the expected value of differences  in the observed performances before and after divisions. E.g. for lists $l,m,n$ of size $ls,ms,ns$ where $l=m\cup n$: \[E(\Delta)=\frac{ms}{ls}abs(m.\mu - l.\mu)^2 + \frac{ns}{ls}abs(n.\mu - l.\mu)^2\]
+Then, we split $l$ into sub-lists $m,n$ as to maximize the expected value of differences  in   observed performances before and after divisions. E.g. for lists $l,m,n$ of size $ls,ms,ns$ where $l=m\cup n$: \[E(\Delta)=\frac{ms}{ls}abs(m.\mu - l.\mu)^2 + \frac{ns}{ls}abs(n.\mu - l.\mu)^2\]
 
 We then apply a apply a statistical hypothesis test $H$ to check
 if $m,n$ are significantly different  (in our case, the conjunction of A12 and bootstrapping). If so, Scott-Knott recurses on the splits. In other words, we divide the data if \textit{both} bootstrap sampling and effect size test agree that a division is statistically significant (with a confidence of 99\%) and not a small effect ($A12 \ge 0.6$).
