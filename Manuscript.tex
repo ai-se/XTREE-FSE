@@ -207,22 +207,17 @@ Valuable development resources may be wasted on bad smells that are ``bad''; i.e
 for some particular project.
 
 To address this problem, we propose the XTREE
-tool to judge refactorings
-proposed by developers.
-  XTREE requires:
+tool that uses: 
      \begin{itemize}
          \item A historical log of defects seen previously in the code;
          \item  Bad smells expressed in terms of the 
           metrics   in that log;
          \item Some proposed refactorings justified using those bad smells.
      \end{itemize}
-Given that information,  XTREE can determine which
+Given that,  XTREE can determine which
   proposed refactorings are to be ignored
 since they are not justifiable  
-with respect to the history of the project.
-
-
-XTREE addresses four problems that  make it hard to  learn useful
+with respect to the history of the project. XTREE addresses four problems that  make it hard to  learn useful
 bad smells for a particular project.
 
 {\em PROBLEM \#1:} As discussed in the next section, programmer
@@ -233,14 +228,12 @@ bad smell X or Y is most important.
   
 
 {\em PROBLEM \#2:} Not all bad smells can be fixed. 
-Consider
-a bad smell stemming from a long method,
-yet that method must be passed as a single closure
-to a third-party GUI toolkit.  This is one
-example of a common problem-- when new code must
-be combined with code from other developers,
-sometimes the constraints imposed by the other code
-lead unavoidably to bad smells. In this case,
+When new code must
+be combined with code from a third party, 
+sometimes the constraints of that code 
+lead unavoidably to bad smells violations (e.g.
+developers might need to passed as a single closure a  very long method
+to  a third-party GUI toolkit).   In this case,
 a refactoring proposed to reduce that bad smell
 may be irrelevant since it cannot be applied to this code base.
 
@@ -538,7 +531,7 @@ an equation proposed by Bender:
  \mathit{bad\; smell\; if\;} M_c > \frac{1}{\beta }\left( {\log \left( {\frac{{{p_1}}}{{1 - {p_1}}}} \right) - \alpha } \right) 
 \end{equation}
 
-\newpage
+ 
 \subsubsection{ Alves et al.}
 Alves et al.~\cite{Alves2010} propose another approach
 to finding thresholds that  utilizes the underlying statistical distribution and scale of the metrics. 
@@ -722,7 +715,7 @@ After that,	  find $C_-$ as follows:
 	  
 
 \input{tex/prediction_stats.tex}      
-	     
+	\newpage     
 \section{Evaluation}
 \subsection{Research Questions}
 % To define our experiments, we  review some details
@@ -890,7 +883,7 @@ results, XTREE is ranked the best, while CD is  ranked   worst.
 % \end{center}
 
 \input{tex/rq2.tex}
- 
+ \newpage
 \subsection{Results}
  
  
